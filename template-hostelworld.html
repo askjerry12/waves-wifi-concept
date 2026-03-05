@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{meta_title}}</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<meta name="description" content="{{meta_description}}" />
+<style>
+{{__INLINE_CSS__}}
+
+/* Template-only additions */
+.gallery-placeholder{height:460px;border-radius:var(--radius-xl);background:linear-gradient(135deg,var(--sand),var(--gray-100));border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative;overflow:hidden}
+.gallery-placeholder .ph-inner{max-width:680px}
+.gallery-placeholder .ph-eyebrow{display:inline-flex;align-items:center;gap:.4rem;background:rgba(224,122,95,.12);color:var(--coral);padding:.25rem .75rem;border-radius:999px;font-weight:700;font-size:.75rem;margin-bottom:.75rem}
+.gallery-placeholder h1{font-size:2.2rem;margin-bottom:.5rem}
+.gallery-placeholder p{color:var(--gray-600);font-size:.95rem}
+
+/* Make highlight grid adapt when fewer items */
+.highlights{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+
+/* Keep community/coworking photos to 2-up as requested */
+.community-photos img{height:260px}
+
+/* Booking buttons spacing for conditional rendering */
+.booking-actions{display:flex;flex-direction:column;gap:.65rem}
+.booking-actions .booking-btn,.booking-actions .booking-secondary{margin:0}
+
+/* Optional subtle divider for sections missing */
+.section-block.compact p:last-child{margin-bottom:0}
+
+/* Allow smaller gallery on mobile when placeholder */
+@media(max-width:768px){
+  .gallery-placeholder{height:340px}
+}
+</style>
+</head>
+<body>
+
+<!-- INTEL TOOLBAR (hidden unless intel mode enabled) -->
+<div class="intel-bar" id="intelBar" style="display:none">
+  <div class="ib-left">
+    <span class="ib-badge">🔍 VISUAL INTEL</span>
+    <span>{{name}} — Data Source Overlay</span>
+    <div class="ib-toggle" id="intelToggle" onclick="toggleIntel()"><div class="dot"></div></div>
+    <span id="intelLabel" style="font-weight:600;color:#a78bfa">OFF</span>
+  </div>
+  <div class="ib-legend">
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#f97316"></div>Their Website</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#eab308"></div>Self-reported</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#22c55e"></div>Google / API</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#a78bfa"></div>Manual / VA</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#38bdf8"></div>Adapted</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#ef4444"></div>Missing</div>
+  </div>
+</div>
+
+<!-- ROAMERA TOP BAR -->
+<header class="topbar">
+  <a href="/homepage.html" class="topbar-logo"><span class="dot"></span> Roamera</a>
+  <div class="topbar-nav">
+    <a href="/homepage.html">Explore</a>
+    <a href="#">Blog</a>
+    <a href="#">Host</a>
+    <div class="topbar-search" onclick="window.location.href='/homepage.html'">🔍 Search destinations...</div>
+    <div class="topbar-avatar">R</div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/homepage.html">Home</a> <span>›</span>
+  {{#if country}}<a href="/homepage.html?country={{country}}">{{country}}</a> <span>›</span>{{/if}}
+  {{#if city}}<a href="/homepage.html?city={{city}}">{{city}}</a> <span>›</span>{{/if}}
+  {{name}}
+</div>
+
+<!-- PHOTO GALLERY -->
+<div class="gallery" data-section="hero">
+  {{#if hero_photos_all}}
+  <div class="gallery-grid">
+    {{#each hero_photos_grid}}
+      <img src="{{url}}" alt="{{alt}}" data-idx="{{@index}}" onclick="openLightbox({{@index}})" />
+    {{/each}}
+    <button class="gallery-btn" onclick="openLightbox(0)">📷 Show all {{hero_photo_count}} photos</button>
+  </div>
+  {{/if}}
+
+  {{#if no_hero_photos}}
+    <div class="gallery-placeholder">
+      <div class="ph-inner">
+        <div class="ph-eyebrow">Roamera Listing</div>
+        <h1>{{name}}</h1>
+        <p>Photos coming soon. For now, explore details, amenities, and location below.</p>
+      </div>
+    </div>
+  {{/if}}
+</div>
+
+<!-- SECTION NAV -->
+<nav class="section-nav" id="sectionNav">
+  <ul>
+    <li><a href="#overview" class="active">Overview</a></li>
+    {{#if community_description}}<li><a href="#community">Community</a></li>{{/if}}
+    {{#if coworking_description}}<li><a href="#coworking">Coworking</a></li>{{/if}}
+    {{#if rooms}}<li><a href="#rooms">Rooms</a></li>{{/if}}
+    {{#if has_reviews_section}}<li><a href="#reviews">Reviews</a></li>{{/if}}
+    <li><a href="#location">Location</a></li>
+    {{#if faqs}}<li><a href="#faq">FAQ</a></li>{{/if}}
+  </ul>
+</nav>
+
+<!-- LISTING BODY -->
+<div class="listing">
+
+  <!-- LEFT COLUMN -->
+  <div class="listing-main">
+
+    <!-- HEADER (Overview anchor) -->
+    <div class="listing-header fade-in" id="overview">
+      <div class="title-row" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <h1 style="margin:0" {{__IX_ATTR_name__}}>{{name}}</h1>
+        {{#if property_type}}
+          <span class="property-type-badge" style="display:inline-flex;align-items:center;gap:.35rem;background:rgba(99,102,241,.12);color:#6366f1;font-size:.78rem;font-weight:600;padding:.3rem .7rem;border-radius:20px;letter-spacing:.02em;white-space:nowrap">
+            {{property_type_badge}}
+          </span>
+        {{/if}}
+      </div>
+
+      {{#if address}}
+        <div class="location" {{__IX_ATTR_address__}}>📍 {{address}}</div>
+      {{/if}}
+
+      {{#if rating}}
+      <div class="header-rating" style="display:flex;align-items:center;gap:.4rem;margin-top:.3rem;font-size:.9rem;color:var(--gray-600)" {{__IX_ATTR_rating__}}>
+        <span style="color:#f59e0b;letter-spacing:1px">★★★★★</span>
+        <strong style="color:var(--gray-800)">{{rating}}</strong>
+        {{#if review_count}}<span style="opacity:.7">· {{review_count}} reviews</span>{{/if}}
+      </div>
+      {{/if}}
+
+      {{#if tagline}}<p style="margin-top:.75rem;color:var(--gray-600)" {{__IX_ATTR_tagline__}}>{{tagline}}</p>{{/if}}
+    </div>
+
+    <!-- HIGHLIGHTS (only show cards with data) -->
+    {{#if has_highlights}}
+    <div class="highlights fade-in" data-section="highlights">
+      {{#if beach_distance}}
+      <div class="highlight" {{__IX_ATTR_beach_distance__}}>
+        <div class="icon">🏖️</div>
+        <div class="value">{{beach_distance}}</div>
+        <div class="label">To Beach</div>
+      </div>
+      {{/if}}
+
+      {{#if wifi_speed}}
+      <div class="highlight" {{__IX_ATTR_wifi_speed__}}>
+        <div class="icon">📶</div>
+        <div class="value">{{wifi_speed}}</div>
+        <div class="label">WiFi Speed</div>
+      </div>
+      {{/if}}
+
+      {{#if unique_feature_value}}
+      <div class="highlight" {{__IX_ATTR_unique_feature__}}>
+        <div class="icon">{{unique_feature_icon}}</div>
+        <div class="value">{{unique_feature_value}}</div>
+        <div class="label">{{unique_feature_label}}</div>
+      </div>
+      {{/if}}
+
+      {{#if community_feature_value}}
+      <div class="highlight" {{__IX_ATTR_community_feature__}}>
+        <div class="icon">{{community_feature_icon}}</div>
+        <div class="value">{{community_feature_value}}</div>
+        <div class="label">{{community_feature_label}}</div>
+      </div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <!-- ABOUT / OVERVIEW COPY -->
+    {{#if about_description}}
+    <section class="section-block fade-in" id="about" data-section="about" {{__IX_ATTR_about_description__}}>
+      <h2>Overview</h2>
+      <p>{{about_description}}</p>
+    </section>
+    {{/if}}
+
+    <!-- AMENITIES -->
+    {{#if amenities}}
+    <section class="section-block fade-in" id="amenities" data-section="amenities">
+      <h2>What This Place Offers</h2>
+      <div class="amenities-grid" id="amenitiesGrid" {{__IX_ATTR_amenities__}}>
+        {{#each amenities}}
+          <div class="amenity"><span class="a-icon">{{icon}}</span> {{name}}</div>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    <!-- COMMUNITY -->
+    {{#if community_description}}
+    <section class="section-block fade-in" id="community" data-section="community" {{__IX_ATTR_community_description__}}>
+      <h2>The Community</h2>
+      <p>{{community_description}}</p>
+
+      {{#if community_photos_2}}
+      <div class="community-photos" {{__IX_ATTR_community_photos__}}>
+        {{#each community_photos_2}}
+          <img src="{{this}}" alt="Community photo" onclick="openLightboxByUrl('{{this}}')" />
+        {{/each}}
+      </div>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    <!-- COWORKING -->
+    {{#if coworking_description}}
+    <section class="section-block fade-in" id="coworking" data-section="coworking" {{__IX_ATTR_coworking_description__}}>
+      <h2>Coworking Space</h2>
+      <p>{{coworking_description}}</p>
+
+      {{#if coworking_photos_2}}
+      <div class="community-photos" {{__IX_ATTR_coworking_photos__}}>
+        {{#each coworking_photos_2}}
+          <img src="{{this}}" alt="Coworking photo" onclick="openLightboxByUrl('{{this}}')" />
+        {{/each}}
+      </div>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    <!-- ROOMS -->
+    {{#if rooms}}
+    <section class="section-block fade-in" id="rooms" data-section="rooms" {{__IX_ATTR_rooms__}}>
+      <h2>Rooms</h2>
+      <div class="rooms-scroll">
+        {{#each rooms}}
+        <div class="room-card">
+          {{#if photo}}
+            <div class="img-wrap">
+              <img src="{{photo}}" alt="{{name}}" onclick="openLightboxByUrl('{{photo}}')" style="cursor:pointer" />
+              {{#if price}}<span class="price-badge">{{price}}</span>{{/if}}
+            </div>
+          {{/if}}
+          <div class="card-body">
+            <h4>{{name}}</h4>
+            {{#if description}}<p class="card-desc">{{description}}</p>{{/if}}
+            {{#if amenities}}
+              <div class="pills">
+                {{#each amenities}}<span class="pill">{{this}}</span>{{/each}}
+              </div>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+    <!-- REVIEWS -->
+    {{#if has_reviews_section}}
+    <section class="section-block fade-in" id="reviews" data-section="reviews">
+      <h2>Reviews</h2>
+
+      {{#if rating}}
+      <div class="reviews-header" {{__IX_ATTR_rating__}}>
+        <div class="score">{{rating}}</div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="count">{{#if review_count}}Based on {{review_count}} reviews{{/if}}</div>
+        </div>
+      </div>
+      {{/if}}
+
+      <div class="review-card" style="background:var(--gray-100)">
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+          <div style="min-width:240px">
+            <div style="font-weight:700">Want more detail?</div>
+            <div style="color:var(--gray-600);font-size:.9rem">We’re still adding individual review excerpts for this listing.</div>
+          </div>
+          {{#if google_places_id}}
+            <a class="booking-secondary" href="https://www.google.com/maps/search/?api=1&query={{name}}&query_place_id={{google_places_id}}" target="_blank" rel="noopener" style="width:auto;display:inline-block">View on Google Maps</a>
+          {{/if}}
+        </div>
+      </div>
+    </section>
+    {{/if}}
+
+    <!-- LOCATION -->
+    <section class="section-block fade-in" id="location" data-section="location">
+      <h2>Location</h2>
+      {{#if address}}<p style="color:var(--gray-600)">Staying in {{city}}? Here’s where this place is located.</p>{{/if}}
+
+      {{#if latitude}}
+      <div class="map-container" {{__IX_ATTR_latlng__}}>
+        <div id="map" style="width:100%;height:100%"></div>
+      </div>
+      {{/if}}
+
+      <div class="location-details">
+        {{#if address}}<div class="loc-item" {{__IX_ATTR_address__}}>📍 {{address}}</div>{{/if}}
+        {{#if email}}<div class="loc-item" {{__IX_ATTR_email__}}>✉️ <a href="mailto:{{email}}">{{email}}</a></div>{{/if}}
+        {{#if phone}}<div class="loc-item" {{__IX_ATTR_phone__}}>📞 {{phone}}</div>{{/if}}
+        {{#if website}}<div class="loc-item" {{__IX_ATTR_website__}}>🌐 <a href="{{website}}" target="_blank" rel="noopener">Website</a></div>{{/if}}
+        {{#if instagram}}<div class="loc-item" {{__IX_ATTR_instagram__}}>📸 {{instagram}}</div>{{/if}}
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    {{#if faqs}}
+    <section class="section-block fade-in" id="faq" data-section="faq" {{__IX_ATTR_faqs__}}>
+      <h2>FAQ</h2>
+      <div id="faqList">
+        {{#each faqs}}
+        <div class="faq-item">
+          <div class="faq-q">{{question}}</div>
+          <div class="faq-a">{{answer}}</div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+  </div>
+
+  <!-- RIGHT COLUMN - BOOKING SIDEBAR -->
+  <aside class="booking-card fade-in" data-section="booking">
+    {{#if has_price}}
+    <div class="price-line" {{__IX_ATTR_price_from__}}>
+      <span class="from">From</span>
+      <span class="price">{{price_from_display}}</span>
+      <span class="per">{{price_period_display}}</span>
+    </div>
+    {{/if}}
+
+    {{#if rating}}
+    <div class="rating-line" {{__IX_ATTR_rating__}}>
+      <span class="stars">★★★★★</span>
+      <strong>{{rating}}</strong>
+      {{#if review_count}}<span>· {{review_count}} reviews</span>{{/if}}
+    </div>
+    {{/if}}
+
+    <div class="booking-actions">
+      {{#if booking_url}}
+        <a class="booking-btn" href="{{booking_url}}" target="_blank" rel="noopener" {{__IX_ATTR_booking_primary_url__}}>
+          Check Availability on HostelWorld
+        </a>
+      {{/if}}
+
+      {{#if cta_visit_website}}
+        <a class="booking-secondary" href="{{website}}" target="_blank" rel="noopener">
+          🌐 Visit Website
+        </a>
+      {{/if}}
+
+      {{#if cta_google_maps}}
+        <a class="booking-btn booking-secondary" href="https://www.google.com/maps/place/?q=place_id:{{google_places_id}}" target="_blank" rel="noopener">
+          View on Google Maps
+        </a>
+      {{/if}}
+
+      {{#if whatsapp_url}}
+        <a class="booking-secondary" href="{{whatsapp_url}}" target="_blank" rel="noopener" {{__IX_ATTR_whatsapp__}}>💬 Message Host on WhatsApp</a>
+      {{/if}}
+    </div>
+
+    {{#if no_price_note}}
+    <div style="font-size:.8rem;color:var(--gray-500);text-align:center;margin-top:.5rem;line-height:1.4;">
+      💡 Pricing varies by room type &amp; season
+    </div>
+    {{/if}}
+
+    <div class="booking-divider"></div>
+
+    <ul class="booking-details">
+      {{#if community_size_min}}<li><span class="bd-icon">👥</span> Community size: {{community_size_min}}{{#if community_size_max}}–{{community_size_max}}{{/if}}</li>{{/if}}
+      {{#if room_types}}<li><span class="bd-icon">🛏️</span> Room types: {{room_types}}</li>{{/if}}
+      {{#if min_stay}}<li {{__IX_ATTR_min_stay__}}><span class="bd-icon">🗓️</span> Min stay: {{min_stay}}</li>{{/if}}
+      {{#if payment}}<li {{__IX_ATTR_payment__}}><span class="bd-icon">💳</span> Payment: {{payment}}</li>{{/if}}
+      {{#if cancellation}}<li {{__IX_ATTR_cancellation__}}><span class="bd-icon">🧾</span> Cancellation: {{cancellation}}</li>{{/if}}
+      {{#if check_in}}<li {{__IX_ATTR_check_in__}}><span class="bd-icon">🕑</span> Check-in: {{check_in}}</li>{{/if}}
+      {{#if check_out}}<li {{__IX_ATTR_check_out__}}><span class="bd-icon">🕚</span> Check-out: {{check_out}}</li>{{/if}}
+    </ul>
+  </aside>
+
+</div>
+
+<!-- FOOTER (match reference) -->
+<footer>
+  <div class="inner">
+    <div class="logo">Roamera</div>
+    <div class="links">
+      <a href="/homepage.html">Explore</a>
+      <a href="#">Host</a>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-counter" id="lbCounter"></div>
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">×</button>
+  <div class="lightbox-img-wrap">
+    <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous">‹</button>
+    <img id="lbImg" src="" alt="" />
+    <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Next">›</button>
+  </div>
+  <div class="lightbox-caption" id="lbCaption"></div>
+  <div class="lightbox-thumbs" id="lbThumbs"></div>
+</div>
+
+<script>
+// ======== DATA BOOTSTRAP (per-page) ========
+window.__PROPERTY__ = {{__PROPERTY_JSON__}};
+
+// ======== INTEL OVERLAY ========
+function intelEnabledFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get('intel') === 'true';
+}
+function setIntel(on){
+  document.body.classList.toggle('intel-on', on);
+  const bar = document.getElementById('intelBar');
+  if(bar) bar.style.display = on ? 'flex' : 'none';
+  const t = document.getElementById('intelToggle');
+  const l = document.getElementById('intelLabel');
+  if(t) t.classList.toggle('on', on);
+  if(l) l.textContent = on ? 'ON' : 'OFF';
+}
+function toggleIntel(){
+  const on = !document.body.classList.contains('intel-on');
+  const url = new URL(window.location.href);
+  url.searchParams.set('intel', on ? 'true' : 'false');
+  window.history.replaceState({}, '', url);
+  setIntel(on);
+}
+
+// attach tooltips to elements using data-ix-field
+function applyIntelBindings(){
+  const intel = window.__PROPERTY__?.intel || {};
+  document.querySelectorAll('[data-ix-field]').forEach(el => {
+    const field = el.getAttribute('data-ix-field');
+    const meta = intel[field] || { source: 'missing', status: 'missing', note: 'No intel provided', source_url: '' };
+    el.classList.add('ix');
+    el.setAttribute('data-src', meta.source || 'missing');
+    const statusClass = meta.status === 'verified' ? 'v' : (meta.status === 'unverified' ? 'u' : 'm');
+    const statusLabel = meta.status === 'verified' ? 'Verified' : (meta.status === 'unverified' ? 'Unverified' : 'Missing');
+    const srcLabel = {
+      website: 'Their Website', self: 'Self-reported', google: 'Google / API', manual: 'Manual / VA', adapted: 'Adapted', missing: 'Missing'
+    }[meta.source] || (meta.source || 'Missing');
+    const tip = document.createElement('div');
+    tip.className = 'ix-tip';
+    tip.innerHTML = `
+      <div class="t-field">${field}</div>
+      <div class="t-row"><span class="t-label">Source</span><span class="t-src ${meta.source}">${srcLabel}</span></div>
+      <div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot ${statusClass}"></span>${statusLabel}</span></div>
+      ${meta.note ? `<div class="t-note">${meta.note}</div>` : ''}
+      ${meta.source_url ? `<div class="t-link"><a href="${meta.source_url}" target="_blank" rel="noopener">🔗 ${meta.source_url}</a></div>` : ''}
+    `.trim();
+    el.prepend(tip);
+  });
+}
+
+// ======== FAQ toggle ========
+document.addEventListener('click', (e) => {
+  const q = e.target.closest('.faq-q');
+  if(!q) return;
+  const item = q.closest('.faq-item');
+  if(item) item.classList.toggle('open');
+});
+
+// ======== Scrollspy ========
+const navLinks = Array.from(document.querySelectorAll('.section-nav a'));
+const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y = window.scrollY + 120;
+  let active = sections[0];
+  for(const s of sections){
+    if(s.offsetTop <= y) active = s;
+  }
+  navLinks.forEach(a => a.classList.toggle('active', document.querySelector(a.getAttribute('href')) === active));
+}
+window.addEventListener('scroll', onScroll, { passive:true });
+
+// ======== Gallery lightbox ========
+let lbIndex = 0;
+function photos(){
+  const p = window.__PROPERTY__ || {};
+  const fromHero = Array.isArray(p.hero_photos_all) ? p.hero_photos_all : (Array.isArray(p.hero_photos) ? p.hero_photos : []);
+  // normalize
+  return fromHero
+    .filter(Boolean)
+    .map(x => (typeof x === 'string') ? ({ url: x, alt: '' }) : ({ url: x.url, alt: x.alt || '' }))
+    .filter(x => x.url);
+}
+function openLightbox(idx){
+  const ps = photos();
+  if(!ps.length) return;
+  lbIndex = Math.max(0, Math.min(idx, ps.length-1));
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  lb.setAttribute('aria-hidden','false');
+  renderLightbox();
+}
+function openLightboxByUrl(url){
+  const ps = photos();
+  if(!ps.length) return;
+  const i = ps.findIndex(p => p.url === url);
+  openLightbox(i >= 0 ? i : 0);
+}
+function closeLightbox(){
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('open');
+  lb.setAttribute('aria-hidden','true');
+}
+function navLightbox(delta){
+  const ps = photos();
+  if(!ps.length) return;
+  lbIndex = (lbIndex + delta + ps.length) % ps.length;
+  renderLightbox();
+}
+function renderLightbox(){
+  const ps = photos();
+  const p = ps[lbIndex];
+  const img = document.getElementById('lbImg');
+  img.src = p.url; img.alt = p.alt;
+  document.getElementById('lbCaption').textContent = p.alt || '';
+  document.getElementById('lbCounter').textContent = `${lbIndex+1} / ${ps.length}`;
+  const thumbs = document.getElementById('lbThumbs');
+  thumbs.innerHTML = ps.map((t,i)=>`<img src="${t.url}" alt="" class="${i===lbIndex?'active':''}" onclick="openLightbox(${i})">`).join('');
+}
+
+// ======== Map (Mapbox) ========
+function initMap(){
+  const p = window.__PROPERTY__ || {};
+  if(!p.latitude || !p.longitude) return;
+  if(!window.mapboxgl) return;
+  try{
+    if(!mapboxgl.accessToken){
+      throw new Error('No Mapbox token');
+    }
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [p.longitude, p.latitude],
+      zoom: 12
+    });
+    new mapboxgl.Marker().setLngLat([p.longitude, p.latitude]).addTo(map);
+  }catch(e){
+    const el = document.getElementById('map');
+    if(el){
+      const q = encodeURIComponent(p.address || `${p.city||''} ${p.country||''}`);
+      el.innerHTML = `<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&output=embed"></iframe>`;
+    }
+  }
+}
+
+// ======== Fade-in observer ========
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+},{ threshold: .12 });
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// init
+applyIntelBindings();
+setIntel(intelEnabledFromURL());
+onScroll();
+initMap();
+</script>
+</body>
+</html>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Punta la Barca — Coliving in Manta, Ecuador | Roamera</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<meta name="description" content="Discover Punta la Barca, a coliving in Manta, Ecuador." />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --coral:#E07A5F;--coral-hover:#c96a50;--cream:#FAF3E0;--charcoal:#2D3436;
+  --sage:#81B29A;--sage-light:#e8f4ee;--sand:#F4F1DE;--white:#fff;
+  --gray-50:#fafaf9;--gray-100:#f5f5f4;--gray-200:#e7e5e4;--gray-300:#d6d3d1;
+  --gray-400:#a8a29e;--gray-500:#78716c;--gray-600:#57534e;--gray-700:#44403c;
+  --radius:0.75rem;--radius-lg:1rem;--radius-xl:1.25rem;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--charcoal);background:var(--gray-50);line-height:1.6}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:600;line-height:1.25}
+img{max-width:100%;display:block}
+a{color:var(--coral);text-decoration:none;transition:color .2s}
+a:hover{color:var(--coral-hover)}
+
+/* === ROAMERA TOP BAR === */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--charcoal);display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.topbar-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--coral)}
+.topbar-nav{display:flex;align-items:center;gap:1.5rem}
+.topbar-nav a{font-size:.85rem;font-weight:500;color:var(--gray-600)}
+.topbar-nav a:hover{color:var(--coral)}
+.topbar-search{display:flex;align-items:center;gap:.5rem;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:2rem;padding:.45rem 1rem;font-size:.85rem;color:var(--gray-500);cursor:pointer;transition:border .2s}
+.topbar-search:hover{border-color:var(--gray-300)}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem}
+
+/* === BREADCRUMB === */
+.breadcrumb{max-width:1200px;margin:0 auto;padding:1rem 2rem .5rem;font-size:.8rem;color:var(--gray-400)}
+.breadcrumb a{color:var(--gray-500)}
+.breadcrumb span{margin:0 .35rem}
+
+/* === PHOTO GALLERY === */
+.gallery{max-width:1200px;margin:0 auto;padding:0 2rem .5rem}
+.gallery-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:.5rem;height:600px;border-radius:var(--radius-xl);overflow:hidden;position:relative}
+.gallery-grid img{width:100%;height:100%;object-fit:cover;object-position:center center;cursor:pointer;transition:transform .3s}
+.gallery-grid img:hover{transform:scale(1.02)}
+.gallery-grid img:first-child{grid-row:span 2}
+.gallery-btn{position:absolute;bottom:1rem;right:1rem;background:var(--white);color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem}
+
+/* === LISTING LAYOUT === */
+.listing{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
+
+/* LEFT COLUMN */
+.listing-main{min-width:0}
+.listing-header{padding-bottom:1.75rem;border-bottom:1px solid var(--gray-200);margin-bottom:1.75rem}
+.listing-header h1{font-size:2.2rem;margin-bottom:.35rem}
+.listing-header .location{color:var(--gray-500);font-size:1rem;display:flex;align-items:center;gap:.35rem;margin-bottom:.75rem}
+.listing-header .tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:.3rem;background:var(--sage-light);color:var(--sage);padding:.3rem .75rem;border-radius:2rem;font-size:.75rem;font-weight:600}
+.tag-coral{background:#fdf0ec;color:var(--coral)}
+
+/* QUICK HIGHLIGHTS */
+.highlights{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding-bottom:1.75rem;border-bottom:1px solid var(--gray-200);margin-bottom:1.75rem}
+.highlight{text-align:center;padding:1rem .5rem}
+.highlight .icon{font-size:1.5rem;margin-bottom:.35rem}
+.highlight .label{font-size:.72rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.highlight .value{font-size:.9rem;font-weight:700;color:var(--charcoal)}
+
+/* SECTION BLOCKS */
+.section-block{padding-bottom:2rem;border-bottom:1px solid var(--gray-200);margin-bottom:2rem}
+.section-block:last-child{border-bottom:none}
+.section-block h2{font-size:1.5rem;margin-bottom:.75rem}
+.section-block h3{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.section-block p{color:var(--gray-600);font-size:.95rem;margin-bottom:.75rem}
+
+/* AMENITIES GRID */
+.amenities-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.amenity{display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:var(--gray-600);padding:.4rem 0}
+.amenity .a-icon{width:28px;text-align:center;font-size:1.1rem}
+.show-more-btn{background:none;border:1px solid var(--charcoal);border-radius:var(--radius);padding:.6rem 1.25rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:.75rem;transition:background .2s}
+.show-more-btn:hover{background:var(--gray-100)}
+
+/* COMMUNITY */
+.community-photos{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.community-photos img{height:260px;width:100%;object-fit:cover}
+.community-tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.c-tag{background:var(--cream);border:1px solid var(--gray-200);border-radius:2rem;padding:.35rem .85rem;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:.35rem}
+
+/* ROOMS SECTION */
+.rooms-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.rooms-scroll::-webkit-scrollbar{height:4px}
+.rooms-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
+.room-card{min-width:280px;max-width:300px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;scroll-snap-align:start;flex-shrink:0;transition:box-shadow .2s}
+.room-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.room-card .img-wrap{position:relative;height:180px;overflow:hidden}
+.room-card .img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.room-card:hover .img-wrap img{transform:scale(1.04)}
+.room-card .price-badge{position:absolute;top:.75rem;right:.75rem;background:var(--charcoal);color:#fff;padding:.25rem .7rem;border-radius:2rem;font-size:.78rem;font-weight:700}
+.room-card .card-body{padding:1rem}
+.room-card h4{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.room-card .card-desc{font-size:.8rem;color:var(--gray-500);margin-bottom:.6rem}
+.room-card .pills{display:flex;flex-wrap:wrap;gap:.3rem}
+.pill{background:var(--gray-100);color:var(--gray-600);padding:.2rem .55rem;border-radius:2rem;font-size:.68rem;font-weight:500}
+
+/* COWORKING */
+.cowork-features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.cowork-feat{background:var(--gray-100);border-radius:var(--radius);padding:.85rem;text-align:center}
+.cowork-feat .cf-icon{font-size:1.3rem;margin-bottom:.3rem}
+.cowork-feat .cf-label{font-size:.78rem;font-weight:600;color:var(--charcoal)}
+.cowork-pricing{display:flex;gap:.75rem}
+.cowork-price{flex:1;border:1px solid var(--gray-200);border-radius:var(--radius);padding:1rem;text-align:center;transition:border-color .2s}
+.cowork-price:hover{border-color:var(--coral)}
+.cowork-price .cp-period{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500);font-weight:600;margin-bottom:.25rem}
+.cowork-price .cp-amount{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700}
+.cowork-price .cp-note{font-size:.7rem;color:var(--gray-400)}
+
+/* REVIEWS */
+.reviews-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem}
+.reviews-header .score{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700}
+.reviews-header .stars{color:#F4A261;font-size:1rem;letter-spacing:1px}
+.reviews-header .count{font-size:.85rem;color:var(--gray-500)}
+.review-cards{display:flex;flex-direction:column;gap:.75rem}
+.review-card{background:var(--gray-100);border-radius:var(--radius);padding:1.25rem}
+.review-card .review-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.review-card .review-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--gray-200)}
+.review-card .review-meta{flex:1}
+.review-card .reviewer{font-size:.85rem;font-weight:700;color:var(--charcoal)}
+.review-card .review-date{font-size:.72rem;color:var(--gray-400)}
+.review-card .review-stars{color:#F4A261;font-size:.8rem;letter-spacing:1px}
+.review-card blockquote{font-size:.9rem;color:var(--gray-600);font-style:italic;line-height:1.5}
+.load-more-btn{display:block;width:100%;padding:.85rem;background:var(--white);color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;margin-top:1rem}
+.load-more-btn:hover{background:var(--gray-100);border-color:var(--gray-400)}
+.review-card.hidden{display:none}
+
+/* SUSTAINABILITY */
+.sustain-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.sustain-item{display:flex;gap:.75rem;align-items:flex-start;padding:.75rem;background:var(--sage-light);border-radius:var(--radius)}
+.sustain-item .s-icon{font-size:1.4rem;flex-shrink:0}
+.sustain-item .s-text{font-size:.82rem;color:var(--gray-700)}
+.sustain-item .s-text strong{display:block;margin-bottom:.15rem;color:var(--charcoal)}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--gray-200);padding:.85rem 0}
+.faq-q{font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.9rem}
+.faq-q::after{content:'+';font-size:1.3rem;color:var(--coral);transition:transform .3s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:.85rem;color:var(--gray-600)}
+.faq-item.open .faq-a{max-height:200px;padding-top:.5rem}
+
+/* === RIGHT COLUMN - BOOKING CARD === */
+.booking-card{position:sticky;top:80px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.booking-card .price-line{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.25rem}
+.booking-card .price-line .from{font-size:.85rem;color:var(--gray-500)}
+.booking-card .price-line .price{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700}
+.booking-card .price-line .per{font-size:.85rem;color:var(--gray-500)}
+.booking-card .rating-line{font-size:.85rem;color:var(--gray-500);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.booking-card .rating-line .stars{color:#F4A261}
+.booking-btn{display:block;width:100%;padding:.9rem;background:var(--coral);color:#fff;border:none;border-radius:var(--radius);font-size:1rem;font-weight:700;cursor:pointer;text-align:center;transition:background .2s;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
+.booking-btn:hover{background:var(--coral-hover);color:#fff}
+.booking-secondary{display:block;width:100%;padding:.75rem;background:transparent;color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:1rem}
+.booking-secondary:hover{background:var(--gray-100)}
+.booking-divider{height:1px;background:var(--gray-200);margin:1.25rem 0}
+.booking-details{font-size:.82rem;color:var(--gray-500)}
+.booking-details li{list-style:none;display:flex;align-items:center;gap:.5rem;padding:.35rem 0}
+.booking-details li .bd-icon{width:20px;text-align:center}
+.booking-host{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;gap:.75rem}
+.booking-host .host-avatar{width:44px;height:44px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.booking-host .host-info{font-size:.82rem}
+.booking-host .host-info strong{display:block;font-size:.9rem}
+.booking-host .host-info span{color:var(--gray-400)}
+
+/* SECTION NAV (scrollspy under gallery) */
+.section-nav{max-width:1200px;margin:0 auto;padding:0 2rem;border-bottom:1px solid var(--gray-200);overflow-x:auto}
+.section-nav ul{display:flex;list-style:none;gap:0}
+.section-nav li a{display:block;padding:.85rem 1.1rem;font-size:.82rem;font-weight:600;color:var(--gray-500);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.section-nav li a:hover,.section-nav li a.active{color:var(--coral);border-bottom-color:var(--coral)}
+
+/* LOCATION */
+.map-container{border-radius:var(--radius);overflow:hidden;height:250px;margin-bottom:1rem}
+.map-container iframe{width:100%;height:100%;border:0}
+.location-details{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.loc-item{font-size:.85rem;color:var(--gray-600);display:flex;align-items:center;gap:.4rem}
+
+/* FOOTER */
+footer{background:var(--charcoal);color:rgba(255,255,255,.6);padding:2.5rem 2rem;margin-top:2rem}
+footer .inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer .logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff}
+footer .links{display:flex;gap:1.5rem}
+footer .links a{color:rgba(255,255,255,.5);font-size:.82rem}
+footer .links a:hover{color:var(--coral-light)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .listing{grid-template-columns:1fr;gap:2rem}
+  .booking-card{position:relative;top:0;order:-1}
+}
+@media(max-width:768px){
+  .gallery-grid{grid-template-columns:1fr 1fr;height:400px}
+  .gallery-grid img:first-child{grid-row:span 2}
+  .gallery-grid img:nth-child(n+4){display:none}
+  .highlights{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .amenities-grid{grid-template-columns:1fr}
+  .community-photos{grid-template-columns:1fr 1fr}
+  .cowork-features{grid-template-columns:1fr 1fr}
+  .cowork-pricing{flex-direction:column}
+  .sustain-grid{grid-template-columns:1fr}
+  .listing{padding:1.25rem}
+  .topbar{padding:0 1rem}
+  .topbar-nav{display:none}
+  .location-details{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .gallery-grid{grid-template-columns:1fr;grid-template-rows:250px;height:auto}
+  .gallery-grid img:first-child{grid-row:span 1}
+  .gallery-grid img:nth-child(n+2){display:none}
+  .highlights{grid-template-columns:1fr 1fr}
+}
+
+/* FADE IN */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox-close{position:absolute;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;z-index:10;padding:.5rem;opacity:.7;transition:opacity .2s}
+.lightbox-close:hover{opacity:1}
+.lightbox-img-wrap{position:relative;max-width:90vw;max-height:80vh;display:flex;align-items:center;justify-content:center}
+.lightbox-img-wrap img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:.5rem;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.5rem;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lightbox-nav:hover{background:rgba(255,255,255,.3)}
+.lightbox-prev{left:-60px}
+.lightbox-next{right:-60px}
+.lightbox-caption{color:rgba(255,255,255,.8);font-size:.85rem;margin-top:1rem;text-align:center;max-width:600px}
+.lightbox-counter{position:absolute;top:1.25rem;left:1.5rem;color:rgba(255,255,255,.6);font-size:.85rem;font-weight:600}
+.lightbox-thumbs{display:flex;gap:.4rem;margin-top:1rem;overflow-x:auto;max-width:90vw;padding:.5rem 0}
+.lightbox-thumbs img{width:60px;height:40px;object-fit:cover;border-radius:.25rem;cursor:pointer;opacity:.4;transition:opacity .2s;flex-shrink:0}
+.lightbox-thumbs img.active{opacity:1;outline:2px solid var(--coral);outline-offset:2px}
+@media(max-width:768px){
+  .lightbox-prev{left:0;top:auto;bottom:1rem;transform:none}
+  .lightbox-next{right:0;top:auto;bottom:1rem;transform:none}
+  .lightbox-thumbs{display:none}
+}
+
+/* ══════ INTEL OVERLAY SYSTEM ══════ */
+.intel-bar{position:fixed;top:0;left:0;right:0;z-index:9998;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:8px 20px;font-family:system-ui,sans-serif;font-size:.8rem;border-bottom:2px solid #6366f1;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.intel-bar .ib-left{display:flex;align-items:center;gap:12px}
+.intel-bar .ib-badge{background:#6366f1;color:#fff;padding:3px 12px;border-radius:20px;font-weight:700;font-size:.75rem;letter-spacing:1px}
+.intel-bar .ib-toggle{position:relative;width:44px;height:24px;background:#334155;border-radius:12px;cursor:pointer;transition:background .2s}
+.intel-bar .ib-toggle.on{background:#6366f1}
+.intel-bar .ib-toggle .dot{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.intel-bar .ib-toggle.on .dot{left:23px}
+.intel-bar .ib-legend{display:flex;gap:14px;align-items:center}
+.intel-bar .ib-legend-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#94a3b8}
+.intel-bar .ib-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+body.intel-on .topbar{top:42px}
+body.intel-on .booking-card{top:122px}
+body.intel-on{padding-top:42px}
+
+/* Intel field highlights */
+.ix{position:relative;cursor:help;transition:outline .15s,background .15s}
+body.intel-on .ix{outline:2px dashed var(--ix-color,#6366f1);outline-offset:2px;background:var(--ix-bg,rgba(99,102,241,.06));border-radius:4px}
+body:not(.intel-on) .ix{outline:none!important;background:none!important}
+
+/* Source colors */
+.ix[data-src="website"]{--ix-color:#f97316;--ix-bg:rgba(249,115,22,.06)}
+.ix[data-src="self"]{--ix-color:#eab308;--ix-bg:rgba(234,179,8,.06)}
+.ix[data-src="google"]{--ix-color:#22c55e;--ix-bg:rgba(34,197,94,.06)}
+.ix[data-src="manual"]{--ix-color:#a78bfa;--ix-bg:rgba(167,139,250,.06)}
+.ix[data-src="adapted"]{--ix-color:#38bdf8;--ix-bg:rgba(56,189,248,.06)}
+.ix[data-src="missing"]{--ix-color:#ef4444;--ix-bg:rgba(239,68,68,.08)}
+
+/* Tooltip */
+.ix-tip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:#0f172a;color:#e2e8f0;padding:12px 16px;border-radius:10px;font-size:.78rem;line-height:1.5;width:300px;z-index:9997;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 8px 30px rgba(0,0,0,.5);border:1px solid #334155}
+.ix-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f172a}
+body.intel-on .ix:hover .ix-tip{opacity:1}
+body:not(.intel-on) .ix-tip{display:none}
+.ix-tip .t-field{font-weight:700;font-size:.85rem;margin-bottom:4px;color:#fff}
+.ix-tip .t-row{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+.ix-tip .t-label{color:#94a3b8}
+.ix-tip .t-val{font-weight:600;text-align:right}
+.ix-tip .t-src{display:inline-block;padding:1px 8px;border-radius:8px;font-size:.7rem;font-weight:600}
+.ix-tip .t-src.website{background:rgba(249,115,22,.15);color:#f97316}
+.ix-tip .t-src.self{background:rgba(234,179,8,.15);color:#eab308}
+.ix-tip .t-src.google{background:rgba(34,197,94,.15);color:#22c55e}
+.ix-tip .t-src.manual{background:rgba(167,139,250,.15);color:#a78bfa}
+.ix-tip .t-src.adapted{background:rgba(56,189,248,.15);color:#38bdf8}
+.ix-tip .t-note{margin-top:6px;padding-top:6px;border-top:1px solid #334155;color:#94a3b8;font-size:.72rem;font-style:italic}
+.ix-tip .t-link{display:block;margin-top:6px;font-size:.7rem;color:#38bdf8;word-break:break-all;font-style:normal}
+.ix-tip .t-link a{color:#38bdf8;text-decoration:underline;pointer-events:auto}
+.t-status{display:flex;align-items:center;gap:4px}
+.t-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.t-dot.v{background:#22c55e}.t-dot.u{background:#eab308}.t-dot.m{background:#ef4444}
+
+/* Gallery images get overlay badge when intel is on */
+body.intel-on .gallery-grid{position:relative}
+body.intel-on .gallery-grid::after{content:'📸 All photos from wavesandwifi.com — usage rights not yet confirmed with property owner';position:absolute;bottom:12px;left:12px;background:rgba(15,23,42,.85);color:#f97316;padding:6px 14px;border-radius:8px;font-size:.75rem;font-weight:600;font-family:system-ui;pointer-events:none;border:1px solid rgba(249,115,22,.3)}
+
+/* Template-only additions */
+.gallery-placeholder{height:460px;border-radius:var(--radius-xl);background:linear-gradient(135deg,var(--sand),var(--gray-100));border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative;overflow:hidden}
+.gallery-placeholder .ph-inner{max-width:680px}
+.gallery-placeholder .ph-eyebrow{display:inline-flex;align-items:center;gap:.4rem;background:rgba(224,122,95,.12);color:var(--coral);padding:.25rem .75rem;border-radius:999px;font-weight:700;font-size:.75rem;margin-bottom:.75rem}
+.gallery-placeholder h1{font-size:2.2rem;margin-bottom:.5rem}
+.gallery-placeholder p{color:var(--gray-600);font-size:.95rem}
+
+/* Make highlight grid adapt when fewer items */
+.highlights{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+
+/* Keep community/coworking photos to 2-up as requested */
+.community-photos img{height:260px}
+
+/* Booking buttons spacing for conditional rendering */
+.booking-actions{display:flex;flex-direction:column;gap:.65rem}
+.booking-actions .booking-btn,.booking-actions .booking-secondary{margin:0}
+
+/* Optional subtle divider for sections missing */
+.section-block.compact p:last-child{margin-bottom:0}
+
+/* Allow smaller gallery on mobile when placeholder */
+@media(max-width:768px){
+  .gallery-placeholder{height:340px}
+}
+</style>
+</head>
+<body>
+
+<!-- INTEL TOOLBAR (hidden unless intel mode enabled) -->
+<div class="intel-bar" id="intelBar" style="display:none">
+  <div class="ib-left">
+    <span class="ib-badge">🔍 VISUAL INTEL</span>
+    <span>Punta la Barca — Data Source Overlay</span>
+    <div class="ib-toggle" id="intelToggle" onclick="toggleIntel()"><div class="dot"></div></div>
+    <span id="intelLabel" style="font-weight:600;color:#a78bfa">OFF</span>
+  </div>
+  <div class="ib-legend">
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#f97316"></div>Their Website</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#eab308"></div>Self-reported</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#22c55e"></div>Google / API</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#a78bfa"></div>Manual / VA</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#38bdf8"></div>Adapted</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#ef4444"></div>Missing</div>
+  </div>
+</div>
+
+<!-- ROAMERA TOP BAR -->
+<header class="topbar">
+  <a href="/homepage.html" class="topbar-logo"><span class="dot"></span> Roamera</a>
+  <div class="topbar-nav">
+    <a href="/homepage.html">Explore</a>
+    <a href="#">Blog</a>
+    <a href="#">Host</a>
+    <div class="topbar-search" onclick="window.location.href='/homepage.html'">🔍 Search destinations...</div>
+    <div class="topbar-avatar">R</div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/homepage.html">Home</a> <span>›</span>
+  <a href="/homepage.html?country=Ecuador">Ecuador</a> <span>›</span>
+  <a href="/homepage.html?city=Manta">Manta</a> <span>›</span>
+  Punta la Barca
+</div>
+
+<!-- PHOTO GALLERY -->
+<div class="gallery" data-section="hero">
+  
+  <div class="gallery-grid">
+    
+      <img src="https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/ae716f0e-adf6-4a3a-eded-860f2bb6fd00/public" alt="" data-idx="0" onclick="openLightbox(0)" />
+    
+      <img src="https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/7177c12b-894d-434a-0779-18dce521c100/public" alt="" data-idx="1" onclick="openLightbox(1)" />
+    
+      <img src="https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/02bc3e21-de1b-4faa-dc8c-9afa5303f000/public" alt="" data-idx="2" onclick="openLightbox(2)" />
+    
+      <img src="https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c423f355-1554-4855-44da-0680910b2a00/public" alt="" data-idx="3" onclick="openLightbox(3)" />
+    
+      <img src="https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c0f1d983-a345-4fb4-4965-96ffc6865700/public" alt="" data-idx="4" onclick="openLightbox(4)" />
+    
+    <button class="gallery-btn" onclick="openLightbox(0)">📷 Show all 5 photos</button>
+  </div>
+  
+
+  
+</div>
+
+<!-- SECTION NAV -->
+<nav class="section-nav" id="sectionNav">
+  <ul>
+    <li><a href="#overview" class="active">Overview</a></li>
+    <li><a href="#community">Community</a></li>
+    
+    <li><a href="#rooms">Rooms</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#location">Location</a></li>
+    
+  </ul>
+</nav>
+
+<!-- LISTING BODY -->
+<div class="listing">
+
+  <!-- LEFT COLUMN -->
+  <div class="listing-main">
+
+    <!-- HEADER (Overview anchor) -->
+    <div class="listing-header fade-in" id="overview">
+      <div class="title-row" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <h1 style="margin:0" data-ix-field="name">Punta la Barca</h1>
+        
+          <span class="property-type-badge" style="display:inline-flex;align-items:center;gap:.35rem;background:rgba(99,102,241,.12);color:#6366f1;font-size:.78rem;font-weight:600;padding:.3rem .7rem;border-radius:20px;letter-spacing:.02em;white-space:nowrap">
+            🏠 Coliving
+          </span>
+        
+      </div>
+
+      
+        <div class="location" data-ix-field="address">📍 Parroquia Manta, Manta, Ecuador</div>
+      
+
+      
+      <div class="header-rating" style="display:flex;align-items:center;gap:.4rem;margin-top:.3rem;font-size:.9rem;color:var(--gray-600)" data-ix-field="rating">
+        <span style="color:#f59e0b;letter-spacing:1px">★★★★★</span>
+        <strong style="color:var(--gray-800)">4.5</strong>
+        <span style="opacity:.7">· 90 reviews</span>
+      </div>
+      
+
+      
+    </div>
+
+    <!-- HIGHLIGHTS (only show cards with data) -->
+    
+
+    <!-- ABOUT / OVERVIEW COPY -->
+    
+    <section class="section-block fade-in" id="about" data-section="about" data-ix-field="about_description">
+      <h2>Overview</h2>
+      <p>At Punta la Barca, we find ourselves in the heart of Parroquia Manta, just a short walk from the ocean. The neighborhood has its own laid-back charm, with local shops and quiet streets that make it easy to unwind after a day of work. We have a coworking space that feels comfortable and productive, with plenty of private desks available for those of us who need to focus. When the sun shines, we often retreat to the terrace to let the ocean breeze in while catching up on emails or brainstorming the next big idea.
+
+Throughout the day, we share the space with a mix of remote workers and freelancers who come from various backgrounds. The kitchen is always open, making it easy to grab a coffee or whip up a snack. With reliable wifi in both the common areas and our rooms, we can stay connected with clients and friends. Whether it’s a workday or a little downtime by the beach, Punta la Barca has become a spot where we can balance productivity with the simple pleasures of life in Manta.</p>
+    </section>
+    
+
+    <!-- AMENITIES -->
+    
+    <section class="section-block fade-in" id="amenities" data-section="amenities">
+      <h2>What This Place Offers</h2>
+      <div class="amenities-grid" id="amenitiesGrid" data-ix-field="amenities">
+        
+          <div class="amenity"><span class="a-icon">🖥️</span> Coworking Space</div>
+        
+          <div class="amenity"><span class="a-icon">🍳</span> Kitchen</div>
+        
+          <div class="amenity"><span class="a-icon">🪑</span> Private Desk(s)</div>
+        
+          <div class="amenity"><span class="a-icon">🌅</span> Terrace</div>
+        
+          <div class="amenity"><span class="a-icon">📶</span> WiFi</div>
+        
+          <div class="amenity"><span class="a-icon">🛏️</span> WiFi in Your Room</div>
+        
+      </div>
+    </section>
+    
+
+    <!-- COMMUNITY -->
+    
+    <section class="section-block fade-in" id="community" data-section="community" data-ix-field="community_description">
+      <h2>The Community</h2>
+      <p>At Punta la Barca in Manta, we’re a laid-back group of remote workers and freelancers who enjoy the tranquil vibe of our space. The coworking area is perfect for focused work, while the kitchen lets us whip up snacks between tasks. We often find ourselves unwinding on the terrace, sharing stories or just soaking in the coastal air. With fast wifi and private desks, we balance productivity and relaxation, all while enjoying the easygoing atmosphere of Parroquia Manta.</p>
+
+      
+    </section>
+    
+
+    <!-- COWORKING -->
+    
+
+    <!-- ROOMS -->
+    
+    <section class="section-block fade-in" id="rooms" data-section="rooms" data-ix-field="rooms">
+      <h2>Rooms</h2>
+      <div class="rooms-scroll">
+        
+        <div class="room-card">
+          
+          <div class="card-body">
+            <h4>Private Room</h4>
+            
+            
+              <div class="pills">
+                <span class="pill">AC</span><span class="pill">Private Bathroom</span><span class="pill">Desk</span><span class="pill">double</span>
+              </div>
+            
+          </div>
+        </div>
+        
+      </div>
+    </section>
+    
+
+    <!-- REVIEWS -->
+    
+    <section class="section-block fade-in" id="reviews" data-section="reviews">
+      <h2>Reviews</h2>
+
+      
+      <div class="reviews-header" data-ix-field="rating">
+        <div class="score">4.5</div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="count">Based on 90 reviews</div>
+        </div>
+      </div>
+      
+
+      <div class="review-card" style="background:var(--gray-100)">
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+          <div style="min-width:240px">
+            <div style="font-weight:700">Want more detail?</div>
+            <div style="color:var(--gray-600);font-size:.9rem">We’re still adding individual review excerpts for this listing.</div>
+          </div>
+          
+            <a class="booking-secondary" href="https://www.google.com/maps/search/?api=1&query=Punta la Barca&query_place_id=ChIJafiKGeFYKZARu12Bjj7wnN4" target="_blank" rel="noopener" style="width:auto;display:inline-block">View on Google Maps</a>
+          
+        </div>
+      </div>
+    </section>
+    
+
+    <!-- LOCATION -->
+    <section class="section-block fade-in" id="location" data-section="location">
+      <h2>Location</h2>
+      <p style="color:var(--gray-600)">Staying in Manta? Here’s where this place is located.</p>
+
+      
+      <div class="map-container" data-ix-field="latlng">
+        <div id="map" style="width:100%;height:100%"></div>
+      </div>
+      
+
+      <div class="location-details">
+        <div class="loc-item" data-ix-field="address">📍 Parroquia Manta, Manta, Ecuador</div>
+        
+        
+        <div class="loc-item" data-ix-field="website">🌐 <a href="https://puntalabarca.com/" target="_blank" rel="noopener">Website</a></div>
+        
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    
+
+  </div>
+
+  <!-- RIGHT COLUMN - BOOKING SIDEBAR -->
+  <aside class="booking-card fade-in" data-section="booking">
+    
+
+    
+    <div class="rating-line" data-ix-field="rating">
+      <span class="stars">★★★★★</span>
+      <strong>4.5</strong>
+      <span>· 90 reviews</span>
+    </div>
+    
+
+    <div class="booking-actions">
+      
+
+      
+        <a class="booking-secondary" href="https://puntalabarca.com/" target="_blank" rel="noopener">
+          🌐 Visit Website
+        </a>
+      
+
+      
+
+      
+    </div>
+
+    
+    <div style="font-size:.8rem;color:var(--gray-500);text-align:center;margin-top:.5rem;line-height:1.4;">
+      💡 Pricing varies by room type &amp; season
+    </div>
+    
+
+    <div class="booking-divider"></div>
+
+    <ul class="booking-details">
+      
+      <li><span class="bd-icon">🛏️</span> Room types: Private Room</li>
+      <li data-ix-field="min_stay"><span class="bd-icon">🗓️</span> Min stay: 1 weeks</li>
+      
+      
+      
+      
+    </ul>
+  </aside>
+
+</div>
+
+<!-- FOOTER (match reference) -->
+<footer>
+  <div class="inner">
+    <div class="logo">Roamera</div>
+    <div class="links">
+      <a href="/homepage.html">Explore</a>
+      <a href="#">Host</a>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-counter" id="lbCounter"></div>
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">×</button>
+  <div class="lightbox-img-wrap">
+    <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous">‹</button>
+    <img id="lbImg" src="" alt="" />
+    <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Next">›</button>
+  </div>
+  <div class="lightbox-caption" id="lbCaption"></div>
+  <div class="lightbox-thumbs" id="lbThumbs"></div>
+</div>
+
+<script>
+// ======== DATA BOOTSTRAP (per-page) ========
+window.__PROPERTY__ = {"slug":"punta-la-barca-manta-ecuador","name":"Punta la Barca","city":"Manta","country":"Ecuador","property_type":"Coliving","tagline":null,"rating":4.5,"review_count":90,"wifi_speed":null,"beach_distance":null,"address":"Parroquia Manta, Manta, Ecuador","latitude":-1.0320063,"longitude":-80.8169311,"email":null,"phone":null,"website":"https://puntalabarca.com/","whatsapp":null,"instagram":null,"about_description":"At Punta la Barca, we find ourselves in the heart of Parroquia Manta, just a short walk from the ocean. The neighborhood has its own laid-back charm, with local shops and quiet streets that make it easy to unwind after a day of work. We have a coworking space that feels comfortable and productive, with plenty of private desks available for those of us who need to focus. When the sun shines, we often retreat to the terrace to let the ocean breeze in while catching up on emails or brainstorming the next big idea.\n\nThroughout the day, we share the space with a mix of remote workers and freelancers who come from various backgrounds. The kitchen is always open, making it easy to grab a coffee or whip up a snack. With reliable wifi in both the common areas and our rooms, we can stay connected with clients and friends. Whether it’s a workday or a little downtime by the beach, Punta la Barca has become a spot where we can balance productivity with the simple pleasures of life in Manta.","community_description":"At Punta la Barca in Manta, we’re a laid-back group of remote workers and freelancers who enjoy the tranquil vibe of our space. The coworking area is perfect for focused work, while the kitchen lets us whip up snacks between tasks. We often find ourselves unwinding on the terrace, sharing stories or just soaking in the coastal air. With fast wifi and private desks, we balance productivity and relaxation, all while enjoying the easygoing atmosphere of Parroquia Manta.","coworking_description":"","community_size_min":null,"community_size_max":null,"min_stay":"1 weeks","hero_photos":[{"url":"https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/ae716f0e-adf6-4a3a-eded-860f2bb6fd00/public","alt":null},{"url":"https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/7177c12b-894d-434a-0779-18dce521c100/public","alt":null},{"url":"https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/02bc3e21-de1b-4faa-dc8c-9afa5303f000/public","alt":null},{"url":"https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c423f355-1554-4855-44da-0680910b2a00/public","alt":null},{"url":"https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c0f1d983-a345-4fb4-4965-96ffc6865700/public","alt":null}],"community_photos":[],"coworking_photos":[],"amenities":[{"icon":"🖥️","name":"Coworking Space"},{"icon":"🍳","name":"Kitchen"},{"icon":"🪑","name":"Private Desk(s)"},{"icon":"🌅","name":"Terrace"},{"icon":"📶","name":"WiFi"},{"icon":"🛏️","name":"WiFi in Your Room"}],"rooms":[{"name":"Private Room","description":null,"price":"","photo":"","amenities":["AC","Private Bathroom","Desk","double"]}],"faqs":[],"booking_url":"","unique_feature_icon":"🏊","unique_feature_value":"","unique_feature_label":"","community_feature_icon":"🎉","community_feature_value":"","community_feature_label":"","meta_title":"Punta la Barca — Coliving in Manta, Ecuador | Roamera","meta_description":"Discover Punta la Barca, a coliving in Manta, Ecuador.","google_places_id":"ChIJafiKGeFYKZARu12Bjj7wnN4","status":"draft","intel":{"name":{"source":"website","status":"verified","note":"From property listing"},"address":{"source":"google","status":"verified","note":"Barrio Punta La Barca, parroquia Santa Marianita (Boca de, Pacoche, Manta 130852, Ecuador"},"rating":{"source":"google","status":"verified","note":"Google rating: 4.5, 90 reviews"}}};
+
+// ======== INTEL OVERLAY ========
+function intelEnabledFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get('intel') === 'true';
+}
+function setIntel(on){
+  document.body.classList.toggle('intel-on', on);
+  const bar = document.getElementById('intelBar');
+  if(bar) bar.style.display = on ? 'flex' : 'none';
+  const t = document.getElementById('intelToggle');
+  const l = document.getElementById('intelLabel');
+  if(t) t.classList.toggle('on', on);
+  if(l) l.textContent = on ? 'ON' : 'OFF';
+}
+function toggleIntel(){
+  const on = !document.body.classList.contains('intel-on');
+  const url = new URL(window.location.href);
+  url.searchParams.set('intel', on ? 'true' : 'false');
+  window.history.replaceState({}, '', url);
+  setIntel(on);
+}
+
+// attach tooltips to elements using data-ix-field
+function applyIntelBindings(){
+  const intel = window.__PROPERTY__?.intel || {};
+  document.querySelectorAll('[data-ix-field]').forEach(el => {
+    const field = el.getAttribute('data-ix-field');
+    const meta = intel[field] || { source: 'missing', status: 'missing', note: 'No intel provided', source_url: '' };
+    el.classList.add('ix');
+    el.setAttribute('data-src', meta.source || 'missing');
+    const statusClass = meta.status === 'verified' ? 'v' : (meta.status === 'unverified' ? 'u' : 'm');
+    const statusLabel = meta.status === 'verified' ? 'Verified' : (meta.status === 'unverified' ? 'Unverified' : 'Missing');
+    const srcLabel = {
+      website: 'Their Website', self: 'Self-reported', google: 'Google / API', manual: 'Manual / VA', adapted: 'Adapted', missing: 'Missing'
+    }[meta.source] || (meta.source || 'Missing');
+    const tip = document.createElement('div');
+    tip.className = 'ix-tip';
+    tip.innerHTML = `
+      <div class="t-field">${field}</div>
+      <div class="t-row"><span class="t-label">Source</span><span class="t-src ${meta.source}">${srcLabel}</span></div>
+      <div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot ${statusClass}"></span>${statusLabel}</span></div>
+      ${meta.note ? `<div class="t-note">${meta.note}</div>` : ''}
+      ${meta.source_url ? `<div class="t-link"><a href="${meta.source_url}" target="_blank" rel="noopener">🔗 ${meta.source_url}</a></div>` : ''}
+    `.trim();
+    el.prepend(tip);
+  });
+}
+
+// ======== FAQ toggle ========
+document.addEventListener('click', (e) => {
+  const q = e.target.closest('.faq-q');
+  if(!q) return;
+  const item = q.closest('.faq-item');
+  if(item) item.classList.toggle('open');
+});
+
+// ======== Scrollspy ========
+const navLinks = Array.from(document.querySelectorAll('.section-nav a'));
+const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function onScroll(){
+  const y = window.scrollY + 120;
+  let active = sections[0];
+  for(const s of sections){
+    if(s.offsetTop <= y) active = s;
+  }
+  navLinks.forEach(a => a.classList.toggle('active', document.querySelector(a.getAttribute('href')) === active));
+}
+window.addEventListener('scroll', onScroll, { passive:true });
+
+// ======== Gallery lightbox ========
+let lbIndex = 0;
+function photos(){
+  const p = window.__PROPERTY__ || {};
+  const fromHero = Array.isArray(p.hero_photos_all) ? p.hero_photos_all : (Array.isArray(p.hero_photos) ? p.hero_photos : []);
+  // normalize
+  return fromHero
+    .filter(Boolean)
+    .map(x => (typeof x === 'string') ? ({ url: x, alt: '' }) : ({ url: x.url, alt: x.alt || '' }))
+    .filter(x => x.url);
+}
+function openLightbox(idx){
+  const ps = photos();
+  if(!ps.length) return;
+  lbIndex = Math.max(0, Math.min(idx, ps.length-1));
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  lb.setAttribute('aria-hidden','false');
+  renderLightbox();
+}
+function openLightboxByUrl(url){
+  const ps = photos();
+  if(!ps.length) return;
+  const i = ps.findIndex(p => p.url === url);
+  openLightbox(i >= 0 ? i : 0);
+}
+function closeLightbox(){
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('open');
+  lb.setAttribute('aria-hidden','true');
+}
+function navLightbox(delta){
+  const ps = photos();
+  if(!ps.length) return;
+  lbIndex = (lbIndex + delta + ps.length) % ps.length;
+  renderLightbox();
+}
+function renderLightbox(){
+  const ps = photos();
+  const p = ps[lbIndex];
+  const img = document.getElementById('lbImg');
+  img.src = p.url; img.alt = p.alt;
+  document.getElementById('lbCaption').textContent = p.alt || '';
+  document.getElementById('lbCounter').textContent = `${lbIndex+1} / ${ps.length}`;
+  const thumbs = document.getElementById('lbThumbs');
+  thumbs.innerHTML = ps.map((t,i)=>`<img src="${t.url}" alt="" class="${i===lbIndex?'active':''}" onclick="openLightbox(${i})">`).join('');
+}
+
+// ======== Map (Mapbox) ========
+function initMap(){
+  const p = window.__PROPERTY__ || {};
+  if(!p.latitude || !p.longitude) return;
+  if(!window.mapboxgl) return;
+  try{
+    if(!mapboxgl.accessToken){
+      throw new Error('No Mapbox token');
+    }
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [p.longitude, p.latitude],
+      zoom: 12
+    });
+    new mapboxgl.Marker().setLngLat([p.longitude, p.latitude]).addTo(map);
+  }catch(e){
+    const el = document.getElementById('map');
+    if(el){
+      const q = encodeURIComponent(p.address || `${p.city||''} ${p.country||''}`);
+      el.innerHTML = `<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&output=embed"></iframe>`;
+    }
+  }
+}
+
+// ======== Fade-in observer ========
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+},{ threshold: .12 });
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// init
+applyIntelBindings();
+setIntel(intelEnabledFromURL());
+onScroll();
+initMap();
+</script>
+</body>
+</html>

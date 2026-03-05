@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waves & Wifi — Roamera</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --coral:#E07A5F;--coral-hover:#c96a50;--cream:#FAF3E0;--charcoal:#2D3436;
+  --sage:#81B29A;--sage-light:#e8f4ee;--sand:#F4F1DE;--white:#fff;
+  --gray-50:#fafaf9;--gray-100:#f5f5f4;--gray-200:#e7e5e4;--gray-300:#d6d3d1;
+  --gray-400:#a8a29e;--gray-500:#78716c;--gray-600:#57534e;--gray-700:#44403c;
+  --radius:0.75rem;--radius-lg:1rem;--radius-xl:1.25rem;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--charcoal);background:var(--gray-50);line-height:1.6}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:600;line-height:1.25}
+img{max-width:100%;display:block}
+a{color:var(--coral);text-decoration:none;transition:color .2s}
+a:hover{color:var(--coral-hover)}
+
+/* === ROAMERA TOP BAR === */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--charcoal);display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.topbar-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--coral)}
+.topbar-nav{display:flex;align-items:center;gap:1.5rem}
+.topbar-nav a{font-size:.85rem;font-weight:500;color:var(--gray-600)}
+.topbar-nav a:hover{color:var(--coral)}
+.topbar-search{display:flex;align-items:center;gap:.5rem;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:2rem;padding:.45rem 1rem;font-size:.85rem;color:var(--gray-500);cursor:pointer;transition:border .2s}
+.topbar-search:hover{border-color:var(--gray-300)}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem}
+
+/* === BREADCRUMB === */
+.breadcrumb{max-width:1200px;margin:0 auto;padding:1rem 2rem .5rem;font-size:.8rem;color:var(--gray-400)}
+.breadcrumb a{color:var(--gray-500)}
+.breadcrumb span{margin:0 .35rem}
+
+/* === PHOTO GALLERY === */
+.gallery{max-width:1200px;margin:0 auto;padding:0 2rem .5rem}
+.gallery-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:.5rem;height:600px;border-radius:var(--radius-xl);overflow:hidden;position:relative}
+.gallery-grid img{width:100%;height:100%;object-fit:cover;object-position:center center;cursor:pointer;transition:transform .3s}
+.gallery-grid img:hover{transform:scale(1.02)}
+.gallery-grid img:first-child{grid-row:span 2}
+.gallery-btn{position:absolute;bottom:1rem;right:1rem;background:var(--white);color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem}
+
+/* === LISTING LAYOUT === */
+.listing{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
+
+/* LEFT COLUMN */
+.listing-main{min-width:0}
+.listing-header{padding-bottom:1.75rem;border-bottom:1px solid var(--gray-200);margin-bottom:1.75rem}
+.listing-header h1{font-size:2.2rem;margin-bottom:.35rem}
+.listing-header .location{color:var(--gray-500);font-size:1rem;display:flex;align-items:center;gap:.35rem;margin-bottom:.75rem}
+.listing-header .tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:.3rem;background:var(--sage-light);color:var(--sage);padding:.3rem .75rem;border-radius:2rem;font-size:.75rem;font-weight:600}
+.tag-coral{background:#fdf0ec;color:var(--coral)}
+
+/* QUICK HIGHLIGHTS */
+.highlights{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding-bottom:1.75rem;border-bottom:1px solid var(--gray-200);margin-bottom:1.75rem}
+.highlight{text-align:center;padding:1rem .5rem}
+.highlight .icon{font-size:1.5rem;margin-bottom:.35rem}
+.highlight .label{font-size:.72rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.highlight .value{font-size:.9rem;font-weight:700;color:var(--charcoal)}
+
+/* SECTION BLOCKS */
+.section-block{padding-bottom:2rem;border-bottom:1px solid var(--gray-200);margin-bottom:2rem}
+.section-block:last-child{border-bottom:none}
+.section-block h2{font-size:1.5rem;margin-bottom:.75rem}
+.section-block h3{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.section-block p{color:var(--gray-600);font-size:.95rem;margin-bottom:.75rem}
+
+/* AMENITIES GRID */
+.amenities-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.amenity{display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:var(--gray-600);padding:.4rem 0}
+.amenity .a-icon{width:28px;text-align:center;font-size:1.1rem}
+.show-more-btn{background:none;border:1px solid var(--charcoal);border-radius:var(--radius);padding:.6rem 1.25rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:.75rem;transition:background .2s}
+.show-more-btn:hover{background:var(--gray-100)}
+
+/* COMMUNITY */
+.community-photos{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.community-photos img{height:260px;width:100%;object-fit:cover}
+.community-tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.c-tag{background:var(--cream);border:1px solid var(--gray-200);border-radius:2rem;padding:.35rem .85rem;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:.35rem}
+
+/* ROOMS SECTION */
+.rooms-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.rooms-scroll::-webkit-scrollbar{height:4px}
+.rooms-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
+.room-card{min-width:280px;max-width:300px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;scroll-snap-align:start;flex-shrink:0;transition:box-shadow .2s}
+.room-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.room-card .img-wrap{position:relative;height:180px;overflow:hidden}
+.room-card .img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.room-card:hover .img-wrap img{transform:scale(1.04)}
+.room-card .price-badge{position:absolute;top:.75rem;right:.75rem;background:var(--charcoal);color:#fff;padding:.25rem .7rem;border-radius:2rem;font-size:.78rem;font-weight:700}
+.room-card .card-body{padding:1rem}
+.room-card h4{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.room-card .card-desc{font-size:.8rem;color:var(--gray-500);margin-bottom:.6rem}
+.room-card .pills{display:flex;flex-wrap:wrap;gap:.3rem}
+.pill{background:var(--gray-100);color:var(--gray-600);padding:.2rem .55rem;border-radius:2rem;font-size:.68rem;font-weight:500}
+
+/* COWORKING */
+.cowork-features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.cowork-feat{background:var(--gray-100);border-radius:var(--radius);padding:.85rem;text-align:center}
+.cowork-feat .cf-icon{font-size:1.3rem;margin-bottom:.3rem}
+.cowork-feat .cf-label{font-size:.78rem;font-weight:600;color:var(--charcoal)}
+.cowork-pricing{display:flex;gap:.75rem}
+.cowork-price{flex:1;border:1px solid var(--gray-200);border-radius:var(--radius);padding:1rem;text-align:center;transition:border-color .2s}
+.cowork-price:hover{border-color:var(--coral)}
+.cowork-price .cp-period{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500);font-weight:600;margin-bottom:.25rem}
+.cowork-price .cp-amount{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700}
+.cowork-price .cp-note{font-size:.7rem;color:var(--gray-400)}
+
+/* REVIEWS */
+.reviews-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem}
+.reviews-header .score{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700}
+.reviews-header .stars{color:#F4A261;font-size:1rem;letter-spacing:1px}
+.reviews-header .count{font-size:.85rem;color:var(--gray-500)}
+.review-cards{display:flex;flex-direction:column;gap:.75rem}
+.review-card{background:var(--gray-100);border-radius:var(--radius);padding:1.25rem}
+.review-card .review-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.review-card .review-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--gray-200)}
+.review-card .review-meta{flex:1}
+.review-card .reviewer{font-size:.85rem;font-weight:700;color:var(--charcoal)}
+.review-card .review-date{font-size:.72rem;color:var(--gray-400)}
+.review-card .review-stars{color:#F4A261;font-size:.8rem;letter-spacing:1px}
+.review-card blockquote{font-size:.9rem;color:var(--gray-600);font-style:italic;line-height:1.5}
+.load-more-btn{display:block;width:100%;padding:.85rem;background:var(--white);color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;margin-top:1rem}
+.load-more-btn:hover{background:var(--gray-100);border-color:var(--gray-400)}
+.review-card.hidden{display:none}
+
+/* SUSTAINABILITY */
+.sustain-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.sustain-item{display:flex;gap:.75rem;align-items:flex-start;padding:.75rem;background:var(--sage-light);border-radius:var(--radius)}
+.sustain-item .s-icon{font-size:1.4rem;flex-shrink:0}
+.sustain-item .s-text{font-size:.82rem;color:var(--gray-700)}
+.sustain-item .s-text strong{display:block;margin-bottom:.15rem;color:var(--charcoal)}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--gray-200);padding:.85rem 0}
+.faq-q{font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.9rem}
+.faq-q::after{content:'+';font-size:1.3rem;color:var(--coral);transition:transform .3s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:.85rem;color:var(--gray-600)}
+.faq-item.open .faq-a{max-height:200px;padding-top:.5rem}
+
+/* === RIGHT COLUMN - BOOKING CARD === */
+.booking-card{position:sticky;top:80px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.booking-card .price-line{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.25rem}
+.booking-card .price-line .from{font-size:.85rem;color:var(--gray-500)}
+.booking-card .price-line .price{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700}
+.booking-card .price-line .per{font-size:.85rem;color:var(--gray-500)}
+.booking-card .rating-line{font-size:.85rem;color:var(--gray-500);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.booking-card .rating-line .stars{color:#F4A261}
+.booking-btn{display:block;width:100%;padding:.9rem;background:var(--coral);color:#fff;border:none;border-radius:var(--radius);font-size:1rem;font-weight:700;cursor:pointer;text-align:center;transition:background .2s;font-family:'DM Sans',sans-serif;margin-bottom:.75rem}
+.booking-btn:hover{background:var(--coral-hover);color:#fff}
+.booking-secondary{display:block;width:100%;padding:.75rem;background:transparent;color:var(--charcoal);border:1px solid var(--gray-300);border-radius:var(--radius);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:1rem}
+.booking-secondary:hover{background:var(--gray-100)}
+.booking-divider{height:1px;background:var(--gray-200);margin:1.25rem 0}
+.booking-details{font-size:.82rem;color:var(--gray-500)}
+.booking-details li{list-style:none;display:flex;align-items:center;gap:.5rem;padding:.35rem 0}
+.booking-details li .bd-icon{width:20px;text-align:center}
+.booking-host{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;gap:.75rem}
+.booking-host .host-avatar{width:44px;height:44px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.booking-host .host-info{font-size:.82rem}
+.booking-host .host-info strong{display:block;font-size:.9rem}
+.booking-host .host-info span{color:var(--gray-400)}
+
+/* SECTION NAV (scrollspy under gallery) */
+.section-nav{max-width:1200px;margin:0 auto;padding:0 2rem;border-bottom:1px solid var(--gray-200);overflow-x:auto}
+.section-nav ul{display:flex;list-style:none;gap:0}
+.section-nav li a{display:block;padding:.85rem 1.1rem;font-size:.82rem;font-weight:600;color:var(--gray-500);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.section-nav li a:hover,.section-nav li a.active{color:var(--coral);border-bottom-color:var(--coral)}
+
+/* LOCATION */
+.map-container{border-radius:var(--radius);overflow:hidden;height:250px;margin-bottom:1rem}
+.map-container iframe{width:100%;height:100%;border:0}
+.location-details{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.loc-item{font-size:.85rem;color:var(--gray-600);display:flex;align-items:center;gap:.4rem}
+
+/* FOOTER */
+footer{background:var(--charcoal);color:rgba(255,255,255,.6);padding:2.5rem 2rem;margin-top:2rem}
+footer .inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer .logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff}
+footer .links{display:flex;gap:1.5rem}
+footer .links a{color:rgba(255,255,255,.5);font-size:.82rem}
+footer .links a:hover{color:var(--coral-light)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .listing{grid-template-columns:1fr;gap:2rem}
+  .booking-card{position:relative;top:0;order:-1}
+}
+@media(max-width:768px){
+  .gallery-grid{grid-template-columns:1fr 1fr;height:400px}
+  .gallery-grid img:first-child{grid-row:span 2}
+  .gallery-grid img:nth-child(n+4){display:none}
+  .highlights{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .amenities-grid{grid-template-columns:1fr}
+  .community-photos{grid-template-columns:1fr 1fr}
+  .cowork-features{grid-template-columns:1fr 1fr}
+  .cowork-pricing{flex-direction:column}
+  .sustain-grid{grid-template-columns:1fr}
+  .listing{padding:1.25rem}
+  .topbar{padding:0 1rem}
+  .topbar-nav{display:none}
+  .location-details{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .gallery-grid{grid-template-columns:1fr;grid-template-rows:250px;height:auto}
+  .gallery-grid img:first-child{grid-row:span 1}
+  .gallery-grid img:nth-child(n+2){display:none}
+  .highlights{grid-template-columns:1fr 1fr}
+}
+
+/* FADE IN */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox-close{position:absolute;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;z-index:10;padding:.5rem;opacity:.7;transition:opacity .2s}
+.lightbox-close:hover{opacity:1}
+.lightbox-img-wrap{position:relative;max-width:90vw;max-height:80vh;display:flex;align-items:center;justify-content:center}
+.lightbox-img-wrap img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:.5rem;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.5rem;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lightbox-nav:hover{background:rgba(255,255,255,.3)}
+.lightbox-prev{left:-60px}
+.lightbox-next{right:-60px}
+.lightbox-caption{color:rgba(255,255,255,.8);font-size:.85rem;margin-top:1rem;text-align:center;max-width:600px}
+.lightbox-counter{position:absolute;top:1.25rem;left:1.5rem;color:rgba(255,255,255,.6);font-size:.85rem;font-weight:600}
+.lightbox-thumbs{display:flex;gap:.4rem;margin-top:1rem;overflow-x:auto;max-width:90vw;padding:.5rem 0}
+.lightbox-thumbs img{width:60px;height:40px;object-fit:cover;border-radius:.25rem;cursor:pointer;opacity:.4;transition:opacity .2s;flex-shrink:0}
+.lightbox-thumbs img.active{opacity:1;outline:2px solid var(--coral);outline-offset:2px}
+@media(max-width:768px){
+  .lightbox-prev{left:0;top:auto;bottom:1rem;transform:none}
+  .lightbox-next{right:0;top:auto;bottom:1rem;transform:none}
+  .lightbox-thumbs{display:none}
+}
+
+/* ══════ INTEL OVERLAY SYSTEM ══════ */
+.intel-bar{position:fixed;top:0;left:0;right:0;z-index:9998;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:8px 20px;font-family:system-ui,sans-serif;font-size:.8rem;border-bottom:2px solid #6366f1;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.intel-bar .ib-left{display:flex;align-items:center;gap:12px}
+.intel-bar .ib-badge{background:#6366f1;color:#fff;padding:3px 12px;border-radius:20px;font-weight:700;font-size:.75rem;letter-spacing:1px}
+.intel-bar .ib-toggle{position:relative;width:44px;height:24px;background:#334155;border-radius:12px;cursor:pointer;transition:background .2s}
+.intel-bar .ib-toggle.on{background:#6366f1}
+.intel-bar .ib-toggle .dot{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.intel-bar .ib-toggle.on .dot{left:23px}
+.intel-bar .ib-legend{display:flex;gap:14px;align-items:center}
+.intel-bar .ib-legend-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#94a3b8}
+.intel-bar .ib-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+body.intel-on .topbar{top:42px}
+body.intel-on .booking-card{top:122px}
+body.intel-on{padding-top:42px}
+
+/* Intel field highlights */
+.ix{position:relative;cursor:help;transition:outline .15s,background .15s}
+body.intel-on .ix{outline:2px dashed var(--ix-color,#6366f1);outline-offset:2px;background:var(--ix-bg,rgba(99,102,241,.06));border-radius:4px}
+body:not(.intel-on) .ix{outline:none!important;background:none!important}
+
+/* Source colors */
+.ix[data-src="website"]{--ix-color:#f97316;--ix-bg:rgba(249,115,22,.06)}
+.ix[data-src="self"]{--ix-color:#eab308;--ix-bg:rgba(234,179,8,.06)}
+.ix[data-src="google"]{--ix-color:#22c55e;--ix-bg:rgba(34,197,94,.06)}
+.ix[data-src="manual"]{--ix-color:#a78bfa;--ix-bg:rgba(167,139,250,.06)}
+.ix[data-src="adapted"]{--ix-color:#38bdf8;--ix-bg:rgba(56,189,248,.06)}
+.ix[data-src="missing"]{--ix-color:#ef4444;--ix-bg:rgba(239,68,68,.08)}
+
+/* Tooltip */
+.ix-tip{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:#0f172a;color:#e2e8f0;padding:12px 16px;border-radius:10px;font-size:.78rem;line-height:1.5;width:300px;z-index:9997;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 8px 30px rgba(0,0,0,.5);border:1px solid #334155}
+.ix-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f172a}
+body.intel-on .ix:hover .ix-tip{opacity:1}
+body:not(.intel-on) .ix-tip{display:none}
+.ix-tip .t-field{font-weight:700;font-size:.85rem;margin-bottom:4px;color:#fff}
+.ix-tip .t-row{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+.ix-tip .t-label{color:#94a3b8}
+.ix-tip .t-val{font-weight:600;text-align:right}
+.ix-tip .t-src{display:inline-block;padding:1px 8px;border-radius:8px;font-size:.7rem;font-weight:600}
+.ix-tip .t-src.website{background:rgba(249,115,22,.15);color:#f97316}
+.ix-tip .t-src.self{background:rgba(234,179,8,.15);color:#eab308}
+.ix-tip .t-src.google{background:rgba(34,197,94,.15);color:#22c55e}
+.ix-tip .t-src.manual{background:rgba(167,139,250,.15);color:#a78bfa}
+.ix-tip .t-src.adapted{background:rgba(56,189,248,.15);color:#38bdf8}
+.ix-tip .t-note{margin-top:6px;padding-top:6px;border-top:1px solid #334155;color:#94a3b8;font-size:.72rem;font-style:italic}
+.ix-tip .t-link{display:block;margin-top:6px;font-size:.7rem;color:#38bdf8;word-break:break-all;font-style:normal}
+.ix-tip .t-link a{color:#38bdf8;text-decoration:underline;pointer-events:auto}
+.t-status{display:flex;align-items:center;gap:4px}
+.t-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.t-dot.v{background:#22c55e}.t-dot.u{background:#eab308}.t-dot.m{background:#ef4444}
+
+/* Gallery images get overlay badge when intel is on */
+body.intel-on .gallery-grid{position:relative}
+body.intel-on .gallery-grid::after{content:'📸 All photos from wavesandwifi.com — usage rights not yet confirmed with property owner';position:absolute;bottom:12px;left:12px;background:rgba(15,23,42,.85);color:#f97316;padding:6px 14px;border-radius:8px;font-size:.75rem;font-weight:600;font-family:system-ui;pointer-events:none;border:1px solid rgba(249,115,22,.3)}
+</style>
+</head>
+<body>
+
+<!-- INTEL TOOLBAR (hidden unless intel mode enabled) -->
+<div class="intel-bar" id="intelBar" style="display:none">
+  <div class="ib-left">
+    <span class="ib-badge">🔍 VISUAL INTEL</span>
+    <span>Waves & Wifi — Data Source Overlay</span>
+    <div class="ib-toggle" id="intelToggle" onclick="toggleIntel()"><div class="dot"></div></div>
+    <span id="intelLabel" style="font-weight:600;color:#a78bfa">OFF</span>
+  </div>
+  <div class="ib-legend">
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#f97316"></div>Their Website</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#eab308"></div>Self-reported</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#22c55e"></div>Google / API</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#a78bfa"></div>Manual / VA</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#38bdf8"></div>Adapted</div>
+    <div class="ib-legend-item"><div class="ib-legend-dot" style="background:#ef4444"></div>Missing</div>
+  </div>
+</div>
+
+<!-- ROAMERA TOP BAR -->
+<header class="topbar">
+  <a href="/homepage.html" class="topbar-logo"><span class="dot"></span> Roamera</a>
+  <div class="topbar-nav">
+    <a href="#">Explore</a>
+    <a href="#">Blog</a>
+    <a href="#">Host</a>
+    <div class="topbar-search">🔍 Search destinations...</div>
+    <div class="topbar-avatar">T</div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#">Home</a> <span>›</span> <a href="#">Nicaragua</a> <span>›</span> <a href="#">Popoyo</a> <span>›</span> Waves & Wifi
+</div>
+
+<!-- PHOTO GALLERY -->
+<div class="gallery">
+  <div class="gallery-grid">
+    <img src="https://wavesandwifi.com/wp-content/uploads/2025/03/IMG_0452.jpg" alt="People hanging by the pool at Waves & Wifi" data-idx="0" onclick="openLightbox(0)">
+    <img src="https://lh3.googleusercontent.com/p/AF1QipMDtdeDcs-jFsj63HnztSPK3pxukBI0CTXHEDbY=w1200" alt="Waves & Wifi property with pool and rooftop" data-idx="1" onclick="openLightbox(1)">
+    <img src="https://wavesandwifi.com/wp-content/uploads/2024/08/IMG_0713.jpg" alt="Group yoga class on the rooftop" data-idx="2" onclick="openLightbox(2)">
+    <img src="https://wavesandwifi.com/wp-content/uploads/2024/08/IMG_1710.jpg" alt="Working from the coworking space with pool view" data-idx="3" onclick="openLightbox(3)">
+    <img src="https://lh3.googleusercontent.com/p/AF1QipOpG0BdJGkCT2vs5aLlrRvMnr6w-V9-RAIgp61w=w1200" alt="Resident dogs at Waves & Wifi" data-idx="4" onclick="openLightbox(4)">
+    <button class="gallery-btn" onclick="openLightbox(0)">📷 Show all 30 photos</button>
+  </div>
+</div>
+
+<!-- SECTION NAV -->
+<nav class="section-nav">
+  <ul>
+    <li><a href="#overview" class="active">Overview</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="#coworking">Coworking</a></li>
+    <li><a href="#rooms">Rooms</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#location">Location</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<!-- LISTING BODY -->
+<div class="listing">
+
+  <!-- LEFT COLUMN -->
+  <div class="listing-main">
+
+    <!-- HEADER -->
+    <div class="listing-header fade-in" id="overview">
+      <div class="title-row" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <h1 class="ix" data-src="website" style="margin:0"><div class="ix-tip"><div class="t-field">Property Name</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-row"><span class="t-label">Updated</span><span class="t-val">Feb 10, 2026</span></div></div>Waves & Wifi</h1>
+        <span class="property-type-badge" style="display:inline-flex;align-items:center;gap:.35rem;background:rgba(99,102,241,.12);color:#6366f1;font-size:.78rem;font-weight:600;padding:.3rem .7rem;border-radius:20px;letter-spacing:.02em;white-space:nowrap">🏠 Coliving</span>
+      </div>
+      <div class="location ix" data-src="google"><div class="ix-tip"><div class="t-field">Location</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Website</span> + <span class="t-src google">Google Places</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-row"><span class="t-label">Updated</span><span class="t-val">Feb 10, 2026</span></div></div>📍 Las Salinas, Popoyo, Nicaragua</div>
+      <div class="header-rating" style="display:flex;align-items:center;gap:.4rem;margin-top:.3rem;font-size:.9rem;color:var(--gray-600)"><span style="color:#f59e0b;letter-spacing:1px">★★★★★</span> <strong style="color:var(--gray-800)">4.9</strong> <span style="opacity:.7">· 67 Google reviews</span></div>
+    </div>
+
+    <!-- HIGHLIGHTS -->
+    <div class="highlights fade-in">
+      <div class="highlight ix" data-src="self"><div class="ix-tip"><div class="t-field">Distance to Beach</div><div class="t-row"><span class="t-label">Source</span><span class="t-src self">Self-reported</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Marketing claim from their website. Not independently measured.</div><div class="t-link"><a href="https://wavesandwifi.com/" target="_blank">🔗 wavesandwifi.com (homepage)</a></div></div>
+        <div class="icon">🏖️</div>
+        <div class="value">150m</div>
+        <div class="label">To Beach</div>
+      </div>
+      <div class="highlight ix" data-src="self"><div class="ix-tip"><div class="t-field">WiFi Speed</div><div class="t-row"><span class="t-label">Source</span><span class="t-src self">Self-reported</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Consistent with guest reviews but no speedtest screenshot provided.</div><div class="t-link"><a href="https://wavesandwifi.com/coworking" target="_blank">🔗 wavesandwifi.com/coworking</a></div></div>
+        <div class="icon">📶</div>
+        <div class="value">200+ Mbps</div>
+        <div class="label">WiFi Speed</div>
+      </div>
+      <div class="highlight ix" data-src="website"><div class="ix-tip"><div class="t-field">Unique Feature</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Pool visible in photos and confirmed on website + Google reviews.</div><div class="t-link"><a href="https://wavesandwifi.com/" target="_blank">🔗 wavesandwifi.com</a></div></div>
+        <div class="icon">🏊</div>
+        <div class="value">Pool</div>
+        <div class="label">On-Site</div>
+      </div>
+      <div class="highlight ix" data-src="website"><div class="ix-tip"><div class="t-field">Community Events</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Regular events confirmed on website + Instagram (surf trips, group dinners, yoga, etc).</div><div class="t-link"><a href="https://wavesandwifi.com/about" target="_blank">🔗 wavesandwifi.com/about</a></div></div>
+        <div class="icon">🎉</div>
+        <div class="value">Weekly</div>
+        <div class="label">Events</div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="section-block fade-in" id="about">
+      <h2>About This Space</h2>
+      <div class="ix" data-src="adapted"><div class="ix-tip"><div class="t-field">About Description</div><div class="t-row"><span class="t-label">Source</span><span class="t-src adapted">Adapted</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Rewritten from their website copy. Captures their vibe accurately.</div></div>
+      <p>Mornings start slow — coffee from the kitchen, bare feet on the terrace, ocean breeze rolling in. By mid-morning, the coworking space is humming with remote workers and freelancers getting shit done between surf sessions.</p>
+      <p>Afternoons bring pool hangs and beach walks. Evenings are for sharing stories, planning the next adventure, and cooking together in the community kitchen. Waves & Wifi is built by digital nomads, for digital nomads — in one of Central America's best-kept surf secrets.</p>
+      </div>
+    </div>
+
+    <!-- AMENITIES -->
+    <div class="section-block fade-in">
+      <h2>What This Place Offers</h2>
+      <div class="amenities-grid ix" data-src="website"><div class="ix-tip"><div class="t-field">Amenities List (18 items)</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Listed on their website rooms/homepage. Not independently confirmed — some amenities may be seasonal.</div><div class="t-link"><a href="https://wavesandwifi.com/" target="_blank">🔗 wavesandwifi.com (homepage + rooms page)</a></div></div>
+        <div class="amenity"><span class="a-icon">📶</span> WiFi</div>
+        <div class="amenity"><span class="a-icon">⚡</span> Fiber Internet</div>
+        <div class="amenity"><span class="a-icon">🖥️</span> Coworking Space</div>
+        <div class="amenity"><span class="a-icon">📞</span> Private Call Booths</div>
+        <div class="amenity"><span class="a-icon">🖥️</span> Monitor</div>
+        <div class="amenity"><span class="a-icon">🪑</span> Private Desk(s)</div>
+        <div class="amenity"><span class="a-icon">❄️</span> Air Conditioning</div>
+        <div class="amenity"><span class="a-icon">🏊</span> Pool</div>
+        <div class="amenity"><span class="a-icon">💪</span> Gym</div>
+        <div class="amenity"><span class="a-icon">🔐</span> Keyless Entry</div>
+        <div class="amenity"><span class="a-icon">☀️</span> Solar Powered</div>
+        <div class="amenity"><span class="a-icon">🚿</span> Hot Water</div>
+        <div class="amenity"><span class="a-icon">🍳</span> Kitchen</div>
+        <div class="amenity"><span class="a-icon">🫧</span> Washer</div>
+        <div class="amenity"><span class="a-icon">🧹</span> Housekeeping</div>
+        <div class="amenity"><span class="a-icon">🚲</span> Bike Rental</div>
+        <div class="amenity"><span class="a-icon">🏖️</span> Walking Distance to Beach</div>
+        <div class="amenity"><span class="a-icon">🎉</span> Community Events</div>
+        <div class="amenity"><span class="a-icon">🍽️</span> Community Meals</div>
+        <div class="amenity"><span class="a-icon">🅿️</span> Free Parking</div>
+      </div>
+    </div>
+
+    <!-- COMMUNITY -->
+    <div class="section-block fade-in" id="community">
+      <h2>The Community 🤙</h2>
+      <p class="ix" data-src="adapted"><div class="ix-tip"><div class="t-field">Community Description</div><div class="t-row"><span class="t-label">Source</span><span class="t-src adapted">Adapted</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Rewritten from website + Instagram content.</div><div class="t-link"><a href="https://wavesandwifi.com/about" target="_blank">🔗 wavesandwifi.com/about</a></div></div>More than just roommates — a family of creators, builders, surfers, and adventurers from around the world. Days start with coffee and code, surf breaks at lunch, and shared dinners in the evening.</p>
+      <div class="community-photos ix" data-src="website"><div class="ix-tip"><div class="t-field">Community Photos (3)</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Downloaded from wavesandwifi.com. Need property owner's permission to use on Roamera.</div><div class="t-link"><a href="https://wavesandwifi.com/about" target="_blank">🔗 wavesandwifi.com/about (community section)</a></div></div>
+        <img src="https://lh3.googleusercontent.com/p/AF1QipPS96KM3a_rMrIVNNVUKJ59VbNHD68Uq-yEqOUm=w1200" alt="Community pool hangout" onclick="openLightbox(10)">
+        <img src="https://wavesandwifi.com/wp-content/uploads/2024/08/IMG_0863.jpg" alt="Nomads laughing together" onclick="openLightbox(11)">
+      </div>
+      <div class="community-tags ix" data-src="website"><div class="ix-tip"><div class="t-field">Community Activities</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Activity list from their website. May vary by season.</div><div class="t-link"><a href="https://wavesandwifi.com/about" target="_blank">🔗 wavesandwifi.com/about</a></div></div>
+        <span class="c-tag">🍽️ Weekly Dinners</span>
+        <span class="c-tag">🏄 Surf Sessions</span>
+        <span class="c-tag">🧘 Yoga Classes</span>
+        <span class="c-tag">💡 Skill Shares</span>
+        <span class="c-tag">🎸 Jam Sessions</span>
+        <span class="c-tag">🚶 Community Walks</span>
+        <span class="c-tag">🍳 Shared Kitchen</span>
+      </div>
+    </div>
+
+    <!-- COWORKING -->
+    <div class="section-block fade-in" id="coworking">
+      <h2>Coworking Space 💻</h2>
+      <p class="ix" data-src="adapted"><div class="ix-tip"><div class="t-field">Coworking Description</div><div class="t-row"><span class="t-label">Source</span><span class="t-src adapted">Adapted</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Rewritten from their coworking page. Claims "first and only" in Popoyo — not independently verified.</div><div class="t-link"><a href="https://wavesandwifi.com/coworking" target="_blank">🔗 wavesandwifi.com/coworking</a></div></div>The first and only coworking space in Popoyo. 150m from the beach. Designed by nomads, for nomads.</p>
+      <div class="community-photos" style="margin-bottom:1.25rem">
+        <img src="https://lh3.googleusercontent.com/p/AF1QipOAU4lPNnXl37stygKg5q7dnnBjuh9bc3lUshPc=w1200" alt="People working in the coworking space" onclick="openLightbox(20)">
+        <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepslXOX6Dvc5aFCE05TI-zL9ANKMlAg_N33nnp1sQQcwsr0SCgaZeZy_sSvCIGxDBsJg_fELN2IsKdMllPKdYYdWUi9hTccxO35Ev-viBouYJCvL98s0KKjn-fT82Bvi1mOBu9r2oVAU_X9=w1200" alt="Coworking desk with plants and monitor" onclick="openLightbox(21)">
+      </div>
+      <div class="cowork-features ix" data-src="website"><div class="ix-tip"><div class="t-field">Coworking Amenities (6 features)</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Feature specs from their coworking page. Monitor size, chair type, booth count not independently confirmed.</div><div class="t-link"><a href="https://wavesandwifi.com/coworking" target="_blank">🔗 wavesandwifi.com/coworking</a></div></div>
+        <div class="cowork-feat"><div class="cf-icon">⚡</div><div class="cf-label">Fiber Internet</div></div>
+        <div class="cowork-feat"><div class="cf-icon">📞</div><div class="cf-label">Private Call Booths</div></div>
+        <div class="cowork-feat"><div class="cf-icon">🖥️</div><div class="cf-label">Monitor</div></div>
+        <div class="cowork-feat"><div class="cf-icon">🪑</div><div class="cf-label">Private Desk(s)</div></div>
+        <div class="cowork-feat"><div class="cf-icon">❄️</div><div class="cf-label">Air Conditioning</div></div>
+        <div class="cowork-feat"><div class="cf-icon">🛏️</div><div class="cf-label">WiFi in Your Room</div></div>
+      </div>
+    </div>
+
+    <!-- ROOMS -->
+    <div class="section-block fade-in" id="rooms">
+      <h2>Rooms</h2>
+      <p class="ix" data-src="website"><div class="ix-tip"><div class="t-field">Room Overview</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Room count and standard amenities from their rooms page.</div><div class="t-link"><a href="https://wavesandwifi.com/rooms" target="_blank">🔗 wavesandwifi.com/rooms</a></div></div>8 rooms, all with AC, private bathrooms, hot water, keyless entry, and a personal desk. Choose your vibe.</p>
+      <div class="rooms-scroll ix" data-src="website"><div class="ix-tip"><div class="t-field">Room Types & Pricing</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Pricing</span><span class="t-val">$45–$50/night</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">Prices from their site only. No monthly rates listed. Photos from their website — need owner confirmation to use. Room descriptions adapted from their room pages.</div><div class="t-link"><a href="https://wavesandwifi.com/rooms" target="_blank">🔗 wavesandwifi.com/rooms</a></div></div>
+        <div class="room-card">
+          <div class="img-wrap">
+            <img src="images/ww/room-king-1.jpg" alt="King Room with Balcony" onclick="openLightbox(8)" style="cursor:pointer">
+            <span class="price-badge">From $50/night</span>
+          </div>
+          <div class="card-body">
+            <h4>King Room with Balcony</h4>
+            <p class="card-desc">King bed, outdoor shower, valley views. Perfect for couples or extra space.</p>
+            <div class="pills">
+              <span class="pill">👑 King Bed</span>
+              <span class="pill">🌿 Balcony</span>
+              <span class="pill">🚿 Outdoor Shower</span>
+            </div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="img-wrap">
+            <img src="images/ww/room-queen-balcony-1.jpg" alt="Queen Room with Balcony" onclick="openLightbox(9)" style="cursor:pointer">
+            <span class="price-badge">From $45/night</span>
+          </div>
+          <div class="card-body">
+            <h4>Queen Room with Balcony</h4>
+            <p class="card-desc">Comfy queen bed, outdoor shower, work desk. Ideal for solo travellers.</p>
+            <div class="pills">
+              <span class="pill">🛏️ Queen Bed</span>
+              <span class="pill">🌿 Balcony</span>
+              <span class="pill">🚿 Outdoor Shower</span>
+            </div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="img-wrap">
+            <img src="images/ww/room-terrace.jpg" alt="Queen Room with Terrace" onclick="openLightbox(13)" style="cursor:pointer">
+            <span class="price-badge">From $45/night</span>
+          </div>
+          <div class="card-body">
+            <h4>Queen Room with Terrace</h4>
+            <p class="card-desc">Queen bed, private patio, work desk. Cozy retreat for solo nomads.</p>
+            <div class="pills">
+              <span class="pill">🛏️ Queen Bed</span>
+              <span class="pill">🌴 Private Patio</span>
+            </div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="img-wrap">
+            <img src="images/ww/room-triple.jpg" alt="Private Triple Room" onclick="openLightbox(14)" style="cursor:pointer">
+            <span class="price-badge">From $50/night</span>
+          </div>
+          <div class="card-body">
+            <h4>Private Triple Room</h4>
+            <p class="card-desc">Queen + twin bed, terrace. Great for friends or small families.</p>
+            <div class="pills">
+              <span class="pill">🛏️ Queen + Twin</span>
+              <span class="pill">🌴 Terrace</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="section-block fade-in" id="reviews">
+      <h2>What Nomads Say</h2>
+      <div class="reviews-header ix" data-src="google"><div class="ix-tip"><div class="t-field">Rating — Google Places</div><div class="t-row"><span class="t-label">Source</span><span class="t-src google">Google Places API</span></div><div class="t-row"><span class="t-label">Rating</span><span class="t-val">4.9 ★</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Live rating from Google Places API. Place ID: ChIJJXMGtPYvdI8RloGjH4jx7lc</div><div class="t-link"><a href="https://maps.app.goo.gl/FZYiy3YaAMgUgaMg8" target="_blank">🔗 Google Maps listing</a></div></div>
+        <div class="score">4.9</div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="count">Based on Google Reviews</div>
+        </div>
+      </div>
+      <div class="review-cards ix" data-src="google"><div class="ix-tip"><div class="t-field">Reviews (5) — Google Places</div><div class="t-row"><span class="t-label">Source</span><span class="t-src google">Google Places API</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Real reviews from Google. Pulled Feb 22, 2026 via Places API. All 5-star.</div><div class="t-link"><a href="https://maps.app.goo.gl/FZYiy3YaAMgUgaMg8" target="_blank">🔗 See all reviews on Google</a></div></div>
+        <div class="review-card">
+          <div class="review-header">
+            <img class="review-avatar" src="https://lh3.googleusercontent.com/a-/ALV-UjVV1JlG10O6moUCmIKe6cnrttdGG5p8eioO-FbumORq9ogKmMq6=s128-c0x00000000-cc-rp-mo" alt="Luke H">
+            <div class="review-meta">
+              <div class="reviewer">Luke H</div>
+              <div class="review-date">January 2026</div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+          </div>
+          <blockquote>"I stayed at Waves and Wifi for a few weeks and it was exactly what I needed. The fast internet is legit, consistently over 70 Mbps, with multiple backups plus a generator. Even when the local power dropped briefly, the workspace still had internet, AC, and power. Huge win if you work remotely."</blockquote>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <img class="review-avatar" src="https://lh3.googleusercontent.com/a-/ALV-UjXvR9M-K-hGsLIZBto9Tk346vzMsEnuJowJopBQgrHRAPUZw4fx=s128-c0x00000000-cc-rp-mo-ba2" alt="Vanessa V">
+            <div class="review-meta">
+              <div class="reviewer">Vanessa V</div>
+              <div class="review-date">December 2025</div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+          </div>
+          <blockquote>"I used the drop-in coworking space for a couple weeks and can't say enough good things about it. The perfect place to work — 24 inch monitors, really strong and consistent wifi, and a beautiful environment with nice natural light and greenery."</blockquote>
+        </div>
+        <div class="review-card">
+          <div class="review-header">
+            <img class="review-avatar" src="https://lh3.googleusercontent.com/a-/ALV-UjX4SQ86lUBkdaarpTzkjuQoa3dQX7o9jPHkLjAH09c23mNPSMdn=s128-c0x00000000-cc-rp-mo-ba4" alt="Crystal Sparks">
+            <div class="review-meta">
+              <div class="reviewer">Crystal Sparks</div>
+              <div class="review-date">December 2025</div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+          </div>
+          <blockquote>"Here, you'll find an incredible community of expats, digital nomads and travelers. They have a gym, a pool, giant shared kitchen, enormous rooftop oceanview yoga deck, lovely staff, a beautiful on site cafe, and a very equipped co working space."</blockquote>
+        </div>
+        <div class="review-card hidden">
+          <div class="review-header">
+            <img class="review-avatar" src="https://lh3.googleusercontent.com/a-/ALV-UjXtelALdSWUu25DSxaafnMn1ERkelGHXNiCVAf9fPDpN-PA2IZq=s128-c0x00000000-cc-rp-mo" alt="Owen Ciha">
+            <div class="review-meta">
+              <div class="reviewer">Owen Ciha</div>
+              <div class="review-date">November 2025</div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+          </div>
+          <blockquote>"What really stood out were the people. I met a ton of other guests and now new friends. Everyone is here for the same reason — to surf, recharge, and enjoy Nicaragua. We ended the week with a barbecue night that made it feel like family."</blockquote>
+        </div>
+        <div class="review-card hidden">
+          <div class="review-header">
+            <img class="review-avatar" src="https://lh3.googleusercontent.com/a/ACg8ocKY0zZhDotvL6RtA1HfXkG9d4hyVayfqJbnk5a71dzS7R6iBAE=s128-c0x00000000-cc-rp-mo" alt="Zip Scanners">
+            <div class="review-meta">
+              <div class="reviewer">Zip Scanners</div>
+              <div class="review-date">January 2026</div>
+            </div>
+            <div class="review-stars">★★★★★</div>
+          </div>
+          <blockquote>"Internet was fast every single day and never had a dropped call. They have backup systems plus a generator. The owners were on site daily, friendly, thoughtful, and do a great job creating a relaxed but social vibe."</blockquote>
+        </div>
+      </div>
+      <button class="load-more-btn" id="loadMoreReviews" onclick="loadMoreReviews()">Load More Reviews</button>
+    </div>
+
+    <!-- LOCATION -->
+    <div class="section-block fade-in" id="location">
+      <h2>Location</h2>
+      <p>In the heart of Popoyo — walking distance to surf breaks, restaurants, and everything you need.</p>
+      <div class="map-container ix" data-src="google"><div class="ix-tip"><div class="t-field">Map Location</div><div class="t-row"><span class="t-label">Source</span><span class="t-src google">Google Places API</span></div><div class="t-row"><span class="t-label">Coords</span><span class="t-val">11.4727°N, 86.1242°W</span></div><div class="t-row"><span class="t-label">Map</span><span class="t-val">Mapbox GL JS</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Exact coordinates from Google Places API. Rendered with Mapbox.</div></div>
+        <div id="mapbox-map" style="width:100%;height:100%"></div>
+      </div>
+      <div class="location-details ix" data-src="website"><div class="ix-tip"><div class="t-field">Contact Details</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Address confirmed via Google. Contact info from their website.</div></div>
+        <div class="loc-item">📍 Calle Guasacate, Las Salinas Tola 48500</div>
+        <div class="loc-item">📧 hello@wavesandwifi.com</div>
+        <div class="loc-item">📞 +505 755 653 15</div>
+        <div class="loc-item">💬 WhatsApp available</div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-block fade-in" id="faq">
+      <h2 class="ix" data-src="adapted"><div class="ix-tip"><div class="t-field">FAQ Section (5 questions)</div><div class="t-row"><span class="t-label">Source</span><span class="t-src adapted">Adapted</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot v"></span>Verified</span></div><div class="t-note">Answers adapted from their website FAQ + booking info. Check-in/out times, cancellation policy, and payment methods from their booking page.</div><div class="t-link"><a href="https://wavesandwifi.com/" target="_blank">🔗 wavesandwifi.com (booking info)</a></div></div>FAQ</h2>
+      <div class="faq-item">
+        <div class="faq-q">What are check-in and check-out times?</div>
+        <div class="faq-a">Check-in after 2pm, check-out before 11am. Flexible — leave bags at reception, hang by the pool, or work in the coworking space.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What's the cancellation policy?</div>
+        <div class="faq-a">30+ days: full refund. Under 30 days or no-show: down payment forfeited. Email hello@wavesandwifi.com.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Payment methods?</div>
+        <div class="faq-a">Cash (USD & Córdobas) and credit card (+5% bank fee).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Coworking for non-guests?</div>
+        <div class="faq-a">Yes! Day ($10), weekly ($40), and monthly ($150) passes available. Buy online or at Kooks Café. 24/7 access code provided.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Are they expanding?</div>
+        <div class="faq-a">Yes — building more rooms starting October 2025. Some daytime construction noise possible.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN - BOOKING CARD -->
+  <aside>
+    <div class="booking-card">
+      <div class="price-line ix" data-src="website"><div class="ix-tip"><div class="t-field">Booking Price</div><div class="t-row"><span class="t-label">Source</span><span class="t-src website">Their Website</span></div><div class="t-row"><span class="t-label">Status</span><span class="t-status"><span class="t-dot u"></span>Unverified</span></div><div class="t-note">No Booking.com or Hostelworld listing to cross-reference pricing.</div></div>
+        <span class="from">From</span>
+        <span class="price">$45</span>
+        <span class="per">/ night</span>
+      </div>
+      <a href="https://www.booking.com/hotel/ni/waves-amp-wifi-coliving.html" target="_blank" class="booking-btn">Check Availability</a>
+      <a href="https://wa.me/50585551234?text=Hi%20from%20Roamera!%20I%27m%20interested%20in%20staying%20at%20Waves%20%26%20Wifi.%20Could%20you%20share%20availability%3F" target="_blank" class="booking-secondary" style="display:block;text-align:center;text-decoration:none">💬 Message Host</a>
+
+      <ul class="booking-details">
+        <li><span class="bd-icon">👥</span> Community size: 8–15 people</li>
+        <li><span class="bd-icon">🛏️</span> 4 room types ($45–$50/night)</li>
+        <li><span class="bd-icon">⏱️</span> Min stay: 1 week</li>
+        <li><span class="bd-icon">📅</span> Check-in: 2pm · Check-out: 11am</li>
+        <li><span class="bd-icon">💳</span> Cash or card (+5%)</li>
+        <li><span class="bd-icon">🔄</span> Free cancellation 30+ days</li>
+      </ul>
+    </div>
+  </aside>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <div class="logo">Roamera</div>
+    <div class="links">
+      <a href="https://wavesandwifi.com/" target="_blank">Official Website</a>
+      <a href="https://www.instagram.com/wavesandwifi.com" target="_blank">Instagram</a>
+      <a href="https://maps.app.goo.gl/FZYiy3YaAMgUgaMg8" target="_blank">Google Maps</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX MODAL -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-counter" id="lb-counter"></div>
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <div class="lightbox-img-wrap">
+    <button class="lightbox-nav lightbox-prev" onclick="navigateLB(-1)">‹</button>
+    <img id="lb-img" src="" alt="">
+    <button class="lightbox-nav lightbox-next" onclick="navigateLB(1)">›</button>
+  </div>
+  <div class="lightbox-caption" id="lb-caption"></div>
+  <div class="lightbox-thumbs" id="lb-thumbs"></div>
+</div>
+
+<script>
+// === LIGHTBOX ===
+const lbImages = [
+  { src: 'images/ww/homepage-pool-sunset.jpg', caption: 'Pool area at golden hour — Waves & Wifi' },
+  { src: 'images/ww/cowork-space-1.jpg', caption: 'The coworking space — 150m from the beach' },
+  { src: 'images/ww/yoga-class.jpg', caption: 'Yoga class on the rooftop palapa' },
+  { src: 'images/ww/room-king-2.jpg', caption: 'King Room — spacious with valley views' },
+  { src: 'images/ww/about-community.jpg', caption: 'The Waves & Wifi community' },
+  { src: 'images/ww/homepage-surf.jpg', caption: 'Surfing at Popoyo — world-class breaks' },
+  { src: 'images/ww/cowork-space-2.jpg', caption: 'Coworking space — desks and ocean views' },
+  { src: 'images/ww/about-hammock.jpg', caption: 'Hammock vibes in the garden' },
+  { src: 'images/ww/room-king-1.jpg', caption: 'King Room with Balcony — $50/night' },
+  { src: 'images/ww/room-queen-balcony-1.jpg', caption: 'Queen Room with Balcony — $45/night' },
+  { src: 'images/ww/homepage-community-kitchen.jpg', caption: 'Shared kitchen — cook together, eat together' },
+  { src: 'images/ww/cowork-nook.jpg', caption: 'Coworking nook with pool view' },
+  { src: 'images/ww/about-garden.jpg', caption: 'Lush tropical gardens' },
+  { src: 'images/ww/room-terrace.jpg', caption: 'Queen Room with Terrace — $45/night' },
+  { src: 'images/ww/room-triple.jpg', caption: 'Private Triple Room — $50/night' },
+  { src: 'images/ww/cowork-phone-booth.jpg', caption: 'Soundproof phone booth for calls' },
+  { src: 'images/ww/room-pool.jpg', caption: 'Pool area at Waves & Wifi' },
+  { src: 'images/ww/yoga-palapa.jpg', caption: 'The rooftop palapa — 360° views' },
+  { src: 'images/ww/homepage-cafe.jpg', caption: 'Kooks Café — coffee, food, good vibes' },
+  { src: 'images/ww/about-property.jpg', caption: 'Waves & Wifi — home base in Popoyo' },
+  { src: 'images/ww/room-exterior.jpg', caption: 'Property exterior' },
+  { src: 'images/ww/cowork-monitors.jpg', caption: '27" monitors for productive work sessions' },
+  { src: 'images/ww/yoga-instructor.jpg', caption: 'Yoga instructor at Waves & Wifi' },
+  { src: 'images/ww/room-bathroom.jpg', caption: 'Private bathroom with outdoor shower' },
+  { src: 'images/ww/about-surf-wide.jpg', caption: 'Surf lifestyle at Popoyo beach' },
+  { src: 'images/ww/homepage-yoga-view.jpg', caption: 'Yoga with ocean and mountain views' },
+  { src: 'images/ww/homepage-blog1.jpg', caption: 'Life at Waves & Wifi' },
+  { src: 'images/ww/homepage-blog2.jpg', caption: 'Community and sustainability' },
+  { src: 'images/ww/homepage-cowork-desk.jpg', caption: 'Dedicated desk in the coworking space' },
+  { src: 'images/ww/room-queen-balcony-2.jpg', caption: 'Queen room balcony view' },
+];
+
+let currentLB = 0;
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbCaption = document.getElementById('lb-caption');
+const lbCounter = document.getElementById('lb-counter');
+const lbThumbs = document.getElementById('lb-thumbs');
+
+// Build thumbs
+lbImages.forEach((img, i) => {
+  const t = document.createElement('img');
+  t.src = img.src; t.alt = img.caption;
+  t.onclick = () => showLB(i);
+  lbThumbs.appendChild(t);
+});
+
+function openLightbox(idx) { showLB(idx); lb.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeLightbox() { lb.classList.remove('open'); document.body.style.overflow=''; }
+function navigateLB(dir) { showLB((currentLB + dir + lbImages.length) % lbImages.length); }
+function showLB(idx) {
+  currentLB = idx;
+  lbImg.src = lbImages[idx].src;
+  lbImg.alt = lbImages[idx].caption;
+  lbCaption.textContent = lbImages[idx].caption;
+  lbCounter.textContent = (idx+1) + ' / ' + lbImages.length;
+  lbThumbs.querySelectorAll('img').forEach((t,i) => t.classList.toggle('active', i===idx));
+  // Scroll active thumb into view
+  const activeThumb = lbThumbs.querySelector('.active');
+  if(activeThumb) activeThumb.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if(!lb.classList.contains('open')) return;
+  if(e.key==='Escape') closeLightbox();
+  if(e.key==='ArrowLeft') navigateLB(-1);
+  if(e.key==='ArrowRight') navigateLB(1);
+});
+
+// Click backdrop to close
+lb.addEventListener('click', e => { if(e.target===lb) closeLightbox(); });
+
+// Fade-in on scroll
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})
+}, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Active nav
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.section-nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 150) current = s.id; });
+  navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+});
+
+// FAQ toggle
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+});
+
+// Mapbox Map
+mapboxgl.accessToken = 'YOUR_MAPBOX_TOKEN';
+const map = new mapboxgl.Map({
+  container: 'mapbox-map',
+  style: 'mapbox://styles/mapbox/outdoors-v12',
+  center: [-86.12416, 11.47274],
+  zoom: 14,
+  attributionControl: false
+});
+map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+map.addControl(new mapboxgl.AttributionControl({ compact: true }));
+
+// Custom marker
+const markerEl = document.createElement('div');
+markerEl.innerHTML = '<div style="background:#E07A5F;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:3px solid #fff;cursor:pointer">🏠</div>';
+const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
+  .setHTML('<div style="font-family:DM Sans,sans-serif;padding:4px"><strong style="font-size:14px">Waves & Wifi</strong><br><span style="font-size:12px;color:#666">📍 Las Salinas, Popoyo, Nicaragua</span><br><span style="font-size:12px;color:#E07A5F">★ 4.9 · Coliving & Coworking</span></div>');
+new mapboxgl.Marker(markerEl)
+  .setLngLat([-86.12416, 11.47274])
+  .setPopup(popup)
+  .addTo(map);
+
+// Load More Reviews
+function loadMoreReviews() {
+  const hidden = document.querySelectorAll('.review-card.hidden');
+  const btn = document.getElementById('loadMoreReviews');
+  if (hidden.length > 0) {
+    hidden.forEach(card => card.classList.remove('hidden'));
+    btn.textContent = 'See All Reviews on Google';
+    btn.onclick = () => window.open('https://maps.app.goo.gl/FZYiy3YaAMgUgaMg8', '_blank');
+  }
+}
+
+// Intel toggle
+function setIntel(on) {
+  document.body.classList.toggle('intel-on', on);
+  const t = document.getElementById('intelToggle');
+  const l = document.getElementById('intelLabel');
+  const b = document.getElementById('intelBar');
+  if (t) t.classList.toggle('on', on);
+  if (l) l.textContent = on ? 'ON' : 'OFF';
+  if (b) b.style.display = on ? 'flex' : 'none';
+}
+function toggleIntel() {
+  setIntel(!document.body.classList.contains('intel-on'));
+}
+
+// Show toolbar and auto-enable via ?intel=true
+(function initIntelFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const enabled = params.get('intel') === 'true';
+  setIntel(enabled);
+})();
+</script>
+</body>
+</html>

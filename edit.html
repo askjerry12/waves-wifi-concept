@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Listing — Waves & Wifi | Roamera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--coral:#e07a5f;--coral-light:#f4a48a;--teal:#4ecdc4;--teal-light:#e8faf8;--navy:#1a1a2e;--gray-50:#faf9f7;--gray-100:#f3f1ed;--gray-200:#e5e2dc;--gray-300:#d1cdc5;--gray-400:#a8a29e;--gray-500:#78716c;--gray-600:#57534e;--gray-700:#44403c;--gray-800:#292524;--green:#22c55e;--green-light:#f0fdf4;--yellow:#eab308;--yellow-light:#fefce8;--blue:#3b82f6;--blue-light:#eff6ff;--radius:.75rem;--radius-sm:.5rem;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);--shadow-lg:0 10px 25px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--gray-50);color:var(--gray-800);line-height:1.6}
+
+/* Top bar */
+.top-bar{background:#fff;border-bottom:1px solid var(--gray-200);padding:.75rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-bar-left{display:flex;align-items:center;gap:1rem}
+.top-bar-left a{color:var(--gray-500);text-decoration:none;font-size:.85rem}
+.top-bar-left h2{font-family:'DM Serif Display',serif;font-size:1.1rem}
+.status-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .65rem;border-radius:2rem;font-size:.75rem;font-weight:600}
+.status-draft{background:var(--yellow-light);color:#a16207}
+.status-live{background:var(--green-light);color:#16a34a}
+.top-bar-right{display:flex;align-items:center;gap:.75rem}
+.top-bar-right button{padding:.5rem 1rem;border-radius:var(--radius-sm);font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.btn-secondary{background:#fff;border:1px solid var(--gray-300);color:var(--gray-700)}
+.btn-secondary:hover{border-color:var(--gray-400);background:var(--gray-50)}
+.btn-primary{background:var(--coral);border:1px solid var(--coral);color:#fff}
+.btn-primary:hover{background:#c96a50}
+.btn-preview{background:var(--teal);border:1px solid var(--teal);color:#fff}
+.btn-preview:hover{background:#3db8b0}
+
+/* Layout */
+.edit-layout{max-width:1300px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start}
+
+/* Section cards */
+.section-card{background:#fff;border-radius:var(--radius);border:1px solid var(--gray-200);padding:1.75rem;margin-bottom:1.25rem;box-shadow:var(--shadow);transition:box-shadow .2s}
+.section-card:hover{box-shadow:var(--shadow-lg)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.section-header h3{font-family:'DM Serif Display',serif;font-size:1.2rem}
+.section-header .source-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .6rem;border-radius:var(--radius-sm);font-size:.7rem;font-weight:500;color:var(--blue);background:var(--blue-light);border:none;cursor:pointer;transition:all .2s}
+.section-header .source-btn:hover{background:#dbeafe}
+
+/* Editable fields */
+.field-group{margin-bottom:1rem}
+.field-label{display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.field-label .source-dot{width:8px;height:8px;border-radius:50%;cursor:pointer;position:relative}
+.source-dot.verified{background:var(--green)}
+.source-dot.unverified{background:var(--yellow)}
+.source-dot.missing{background:var(--gray-300)}
+.source-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:.5rem .75rem;border-radius:var(--radius-sm);font-size:.7rem;font-weight:400;text-transform:none;letter-spacing:0;white-space:nowrap;z-index:10;box-shadow:var(--shadow-lg)}
+.source-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy)}
+.source-dot:hover .source-tooltip{display:block}
+.field-input{width:100%;padding:.6rem .75rem;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font:inherit;font-size:.9rem;color:var(--gray-800);transition:border-color .2s;background:#fff}
+.field-input:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 3px rgba(224,122,95,.12)}
+textarea.field-input{min-height:100px;resize:vertical}
+.field-input::placeholder{color:var(--gray-400)}
+
+/* Photo grid edit */
+.photo-grid-edit{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem}
+.photo-grid-edit .photo-item{position:relative;aspect-ratio:4/3;border-radius:var(--radius-sm);overflow:hidden;cursor:grab}
+.photo-grid-edit .photo-item img{width:100%;height:100%;object-fit:cover}
+.photo-grid-edit .photo-item.hero{grid-column:span 2;grid-row:span 2}
+.photo-item .photo-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:.5rem;opacity:0;transition:opacity .2s}
+.photo-item:hover .photo-overlay{opacity:1}
+.photo-overlay button{background:rgba(255,255,255,.9);border:none;padding:.35rem .6rem;border-radius:var(--radius-sm);font-size:.75rem;cursor:pointer;font-weight:500}
+.photo-add{border:2px dashed var(--gray-300);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:var(--gray-400);font-size:.8rem;cursor:pointer;transition:all .2s;aspect-ratio:4/3;border-radius:var(--radius-sm)}
+.photo-add:hover{border-color:var(--coral);color:var(--coral)}
+.photo-add .plus{font-size:1.5rem}
+
+/* Amenity tags */
+.amenity-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.amenity-tag{display:inline-flex;align-items:center;gap:.35rem;padding:.4rem .75rem;border-radius:2rem;font-size:.8rem;background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-200);cursor:pointer;transition:all .2s}
+.amenity-tag:hover{background:var(--coral);color:#fff;border-color:var(--coral)}
+.amenity-tag .remove{margin-left:.25rem;opacity:.5}
+.amenity-tag .remove:hover{opacity:1}
+.amenity-add{border-style:dashed;border-color:var(--gray-300);background:transparent;color:var(--gray-400)}
+.amenity-add:hover{border-color:var(--coral);color:var(--coral);background:rgba(224,122,95,.05)}
+
+/* Room cards */
+.room-edit-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:120px 1fr;gap:1rem;align-items:start}
+.room-edit-card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--radius-sm)}
+.room-fields{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.room-fields .field-group{margin-bottom:0}
+.room-fields .full-width{grid-column:span 2}
+
+/* Sidebar */
+.sidebar{position:sticky;top:70px}
+.sidebar-card{background:#fff;border-radius:var(--radius);border:1px solid var(--gray-200);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.sidebar-card h4{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:.75rem}
+
+/* Completeness meter */
+.completeness{margin-bottom:.75rem}
+.completeness-bar{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;margin-bottom:.4rem}
+.completeness-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--teal));border-radius:4px;transition:width .5s}
+.completeness-text{font-size:.75rem;color:var(--gray-500)}
+
+/* Checklist */
+.checklist-item{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.82rem;color:var(--gray-600)}
+.checklist-item.done{color:var(--gray-400);text-decoration:line-through}
+.check-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+.check-done{background:var(--green-light);color:var(--green)}
+.check-todo{background:var(--gray-100);color:var(--gray-400)}
+
+/* Bibliography panel */
+.bib-panel{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden}
+.bib-header{padding:1rem 1.25rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between}
+.bib-header h4{font-family:'DM Serif Display',serif;font-size:1rem}
+.bib-list{max-height:400px;overflow-y:auto}
+.bib-item{padding:.75rem 1.25rem;border-bottom:1px solid var(--gray-100);display:flex;gap:.75rem;align-items:start;font-size:.8rem;transition:background .2s}
+.bib-item:hover{background:var(--gray-50)}
+.bib-item:last-child{border-bottom:none}
+.bib-icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem}
+.bib-icon.web{background:var(--blue-light);color:var(--blue)}
+.bib-icon.manual{background:var(--yellow-light);color:#a16207}
+.bib-icon.api{background:var(--green-light);color:var(--green)}
+.bib-field{font-weight:600;color:var(--gray-700)}
+.bib-source{color:var(--gray-500)}
+.bib-source a{color:var(--blue);text-decoration:none}
+.bib-source a:hover{text-decoration:underline}
+.bib-date{color:var(--gray-400);font-size:.7rem}
+.bib-status{margin-left:auto;flex-shrink:0}
+
+/* Source legend */
+.source-legend{display:flex;gap:1rem;padding:.75rem 1.25rem;background:var(--gray-50);font-size:.72rem;color:var(--gray-500);border-top:1px solid var(--gray-200)}
+.source-legend span{display:flex;align-items:center;gap:.3rem}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Activity log */
+.activity-item{display:flex;gap:.5rem;padding:.4rem 0;font-size:.78rem;color:var(--gray-500)}
+.activity-item .time{flex-shrink:0;color:var(--gray-400);font-size:.7rem;min-width:55px}
+
+/* Responsive */
+@media(max-width:900px){.edit-layout{grid-template-columns:1fr}.sidebar{position:static}}
+@media(max-width:600px){.photo-grid-edit{grid-template-columns:1fr 1fr}.photo-grid-edit .photo-item.hero{grid-column:span 2}.room-edit-card{grid-template-columns:1fr}.room-fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a href="index.html">← Back to listing</a>
+    <h2>Waves & Wifi</h2>
+    <span class="status-badge status-draft">● Draft</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn-secondary" onclick="window.open('index.html')">👁 Preview</button>
+    <button class="btn-secondary">💾 Save Draft</button>
+    <button class="btn-primary">🚀 Publish Listing</button>
+  </div>
+</div>
+
+<div class="edit-layout">
+  <!-- Main content -->
+  <div class="main-content">
+
+    <!-- Photos Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>📸 Photos</h3>
+        <button class="source-btn" title="View sources">🔗 3 sources</button>
+      </div>
+      <div class="photo-grid-edit">
+        <div class="photo-item hero">
+          <img src="images/ww/homepage-pool-sunset.jpg" alt="Pool at sunset">
+          <div class="photo-overlay">
+            <button>✏️ Edit</button>
+            <button>🗑 Remove</button>
+            <button>⭐ Hero</button>
+          </div>
+        </div>
+        <div class="photo-item">
+          <img src="images/ww/cowork-space-1.jpg" alt="Coworking">
+          <div class="photo-overlay"><button>✏️</button><button>🗑</button></div>
+        </div>
+        <div class="photo-item">
+          <img src="images/ww/yoga-class.jpg" alt="Yoga">
+          <div class="photo-overlay"><button>✏️</button><button>🗑</button></div>
+        </div>
+        <div class="photo-item">
+          <img src="images/ww/about-surf-wide.jpg" alt="Surf">
+          <div class="photo-overlay"><button>✏️</button><button>🗑</button></div>
+        </div>
+        <div class="photo-item">
+          <img src="images/ww/homepage-blog1.jpg" alt="Community">
+          <div class="photo-overlay"><button>✏️</button><button>🗑</button></div>
+        </div>
+        <div class="photo-item">
+          <img src="images/ww/room-king-2.jpg" alt="Room">
+          <div class="photo-overlay"><button>✏️</button><button>🗑</button></div>
+        </div>
+        <div class="photo-add">
+          <span class="plus">+</span>
+          <span>Add photos</span>
+        </div>
+      </div>
+      <p style="font-size:.75rem;color:var(--gray-400)">Drag to reorder · First photo is the hero · Recommended: 10-20 high-quality photos</p>
+    </div>
+
+    <!-- Basic Info -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>📋 Basic Info</h3>
+        <button class="source-btn">🔗 5 sources</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          Property Name
+          <span class="source-dot verified"><span class="source-tooltip">✅ Verified from wavesandwifi.com<br>Scraped Feb 16, 2026</span></span>
+        </label>
+        <input class="field-input" type="text" value="Waves & Wifi">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="field-group">
+          <label class="field-label">
+            City / Area
+            <span class="source-dot verified"><span class="source-tooltip">✅ Verified from wavesandwifi.com/about<br>Scraped Feb 16, 2026</span></span>
+          </label>
+          <input class="field-input" type="text" value="Las Salinas, Popoyo">
+        </div>
+        <div class="field-group">
+          <label class="field-label">
+            Country
+            <span class="source-dot verified"><span class="source-tooltip">✅ Verified from wavesandwifi.com<br>Scraped Feb 16, 2026</span></span>
+          </label>
+          <input class="field-input" type="text" value="Nicaragua">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="field-group">
+          <label class="field-label">
+            Price From ($/night)
+            <span class="source-dot verified"><span class="source-tooltip">✅ Verified from wavesandwifi.com/rooms<br>"Starting at $45/night"<br>Scraped Feb 16, 2026</span></span>
+          </label>
+          <input class="field-input" type="number" value="45">
+        </div>
+        <div class="field-group">
+          <label class="field-label">
+            WiFi Speed
+            <span class="source-dot unverified"><span class="source-tooltip">⚠️ Unverified — from website copy<br>"200+ Mbps" on wavesandwifi.com/coworking<br>Needs speed test confirmation</span></span>
+          </label>
+          <input class="field-input" type="text" value="200+ Mbps" style="border-color:var(--yellow)">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          Website
+          <span class="source-dot verified"><span class="source-tooltip">✅ Direct source</span></span>
+        </label>
+        <input class="field-input" type="url" value="https://wavesandwifi.com">
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>✍️ About This Space</h3>
+        <button class="source-btn">🔗 2 sources</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          Description
+          <span class="source-dot verified"><span class="source-tooltip">✅ Adapted from wavesandwifi.com/about<br>Original copy rewritten for Roamera style<br>Feb 16, 2026</span></span>
+        </label>
+        <textarea class="field-input" rows="5">Mornings start slow — coffee from the kitchen, bare feet on the terrace, ocean breeze rolling in. By mid-morning, the coworking space is humming with remote workers and freelancers getting shit done between surf sessions.
+
+Afternoons bring pool hangs and beach walks. Evenings are for sharing stories, planning the next adventure, and cooking together in the community kitchen. Waves & Wifi is built by digital nomads, for digital nomads — in one of Central America's best-kept surf secrets.</textarea>
+      </div>
+    </div>
+
+    <!-- Amenities -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>🏠 Amenities</h3>
+        <button class="source-btn">🔗 4 sources</button>
+      </div>
+      <div class="amenity-grid">
+        <span class="amenity-tag">📶 Fast WiFi (200+ Mbps) <span class="remove">×</span></span>
+        <span class="amenity-tag">💻 24/7 Coworking <span class="remove">×</span></span>
+        <span class="amenity-tag">❄️ Air Conditioning <span class="remove">×</span></span>
+        <span class="amenity-tag">🏊 Swimming Pool <span class="remove">×</span></span>
+        <span class="amenity-tag">🏋️ Gym <span class="remove">×</span></span>
+        <span class="amenity-tag">🧘 Rooftop Yoga <span class="remove">×</span></span>
+        <span class="amenity-tag">☕ On-site Café <span class="remove">×</span></span>
+        <span class="amenity-tag">🍳 Community Kitchen <span class="remove">×</span></span>
+        <span class="amenity-tag">🔑 Keyless Entry <span class="remove">×</span></span>
+        <span class="amenity-tag">☀️ Solar Powered <span class="remove">×</span></span>
+        <span class="amenity-tag">🚿 Hot Water <span class="remove">×</span></span>
+        <span class="amenity-tag">🖥 27" Monitors <span class="remove">×</span></span>
+        <span class="amenity-tag">📞 Phone Booths <span class="remove">×</span></span>
+        <span class="amenity-tag">🪑 Standing Desks <span class="remove">×</span></span>
+        <span class="amenity-tag amenity-add">+ Add amenity</span>
+      </div>
+    </div>
+
+    <!-- Rooms -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>🛏 Rooms</h3>
+        <button class="source-btn">🔗 1 source</button>
+      </div>
+
+      <div class="room-edit-card">
+        <img src="images/ww/room-king-1.jpg" alt="King Room">
+        <div class="room-fields">
+          <div class="field-group">
+            <label class="field-label">Room Name</label>
+            <input class="field-input" value="King Room with Balcony">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price/Night
+              <span class="source-dot verified"><span class="source-tooltip">✅ wavesandwifi.com/rooms<br>"$50/night"</span></span>
+            </label>
+            <input class="field-input" type="number" value="50">
+          </div>
+          <div class="field-group full-width">
+            <label class="field-label">Features</label>
+            <input class="field-input" value="King bed, balcony, private bathroom, desk space">
+          </div>
+        </div>
+      </div>
+
+      <div class="room-edit-card">
+        <img src="images/ww/room-queen-balcony-1.jpg" alt="Queen Room">
+        <div class="room-fields">
+          <div class="field-group">
+            <label class="field-label">Room Name</label>
+            <input class="field-input" value="Queen Room with Balcony">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price/Night
+              <span class="source-dot verified"><span class="source-tooltip">✅ wavesandwifi.com/rooms<br>"$45/night"</span></span>
+            </label>
+            <input class="field-input" type="number" value="45">
+          </div>
+          <div class="field-group full-width">
+            <label class="field-label">Features</label>
+            <input class="field-input" value="Queen bed, balcony, private bathroom">
+          </div>
+        </div>
+      </div>
+
+      <div class="room-edit-card">
+        <img src="images/ww/room-terrace.jpg" alt="Queen Terrace">
+        <div class="room-fields">
+          <div class="field-group">
+            <label class="field-label">Room Name</label>
+            <input class="field-input" value="Queen Room with Terrace">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price/Night</label>
+            <input class="field-input" type="number" value="45">
+          </div>
+          <div class="field-group full-width">
+            <label class="field-label">Features</label>
+            <input class="field-input" value="Queen bed, terrace, private bathroom">
+          </div>
+        </div>
+      </div>
+
+      <div class="room-edit-card">
+        <img src="images/ww/room-triple.jpg" alt="Triple Room">
+        <div class="room-fields">
+          <div class="field-group">
+            <label class="field-label">Room Name</label>
+            <input class="field-input" value="Private Triple Room">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price/Night</label>
+            <input class="field-input" type="number" value="50">
+          </div>
+          <div class="field-group full-width">
+            <label class="field-label">Features</label>
+            <input class="field-input" value="3 beds, private bathroom, balcony">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-secondary" style="width:100%;padding:.75rem;margin-top:.5rem">+ Add Room</button>
+    </div>
+
+    <!-- Location -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>📍 Location</h3>
+        <button class="source-btn">🔗 1 source</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="field-group">
+          <label class="field-label">Latitude
+            <span class="source-dot verified"><span class="source-tooltip">✅ Google Maps geocode<br>Feb 16, 2026</span></span>
+          </label>
+          <input class="field-input" value="11.4486">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Longitude</label>
+          <input class="field-input" value="-85.9637">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Address / Directions</label>
+        <textarea class="field-input" rows="2">Calle Guasacate, Las Salinas, Tola 48503, Nicaragua</textarea>
+      </div>
+      <div style="background:var(--gray-100);height:200px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--gray-400);margin-top:.5rem">
+        🗺 Map preview (click to set pin)
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Completeness -->
+    <div class="sidebar-card">
+      <h4>📊 Listing Completeness</h4>
+      <div class="completeness">
+        <div class="completeness-bar"><div class="completeness-fill" style="width:78%"></div></div>
+        <div class="completeness-text">78% complete — 4 items remaining</div>
+      </div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Property name & location</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Photos (7 uploaded)</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Description written</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Amenities listed (14)</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Room types & pricing</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Location set</div>
+      <div class="checklist-item done"><span class="check-icon check-done">✓</span> Website linked</div>
+      <div class="checklist-item"><span class="check-icon check-todo">○</span> Verify WiFi speed</div>
+      <div class="checklist-item"><span class="check-icon check-todo">○</span> Add check-in/out times</div>
+      <div class="checklist-item"><span class="check-icon check-todo">○</span> Add cancellation policy</div>
+      <div class="checklist-item"><span class="check-icon check-todo">○</span> Add at least 10 photos</div>
+    </div>
+
+    <!-- Bibliography -->
+    <div class="bib-panel">
+      <div class="bib-header">
+        <h4>📚 Data Sources</h4>
+        <span style="font-size:.72rem;color:var(--gray-400)">16 fields sourced</span>
+      </div>
+      <div class="bib-list">
+        <div class="bib-item">
+          <span class="bib-icon web">🌐</span>
+          <div>
+            <div class="bib-field">Property Name, Location, Price</div>
+            <div class="bib-source"><a href="https://wavesandwifi.com" target="_blank">wavesandwifi.com</a></div>
+            <div class="bib-date">Scraped Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot verified"></span></span>
+        </div>
+        <div class="bib-item">
+          <span class="bib-icon web">🌐</span>
+          <div>
+            <div class="bib-field">Room types, pricing, features</div>
+            <div class="bib-source"><a href="https://wavesandwifi.com/rooms/" target="_blank">wavesandwifi.com/rooms</a></div>
+            <div class="bib-date">Scraped Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot verified"></span></span>
+        </div>
+        <div class="bib-item">
+          <span class="bib-icon web">🌐</span>
+          <div>
+            <div class="bib-field">WiFi speed claim ("200+ Mbps")</div>
+            <div class="bib-source"><a href="https://wavesandwifi.com/coworking-space/" target="_blank">wavesandwifi.com/coworking</a></div>
+            <div class="bib-date">Scraped Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot unverified"></span></span>
+        </div>
+        <div class="bib-item">
+          <span class="bib-icon web">🌐</span>
+          <div>
+            <div class="bib-field">Description, amenities, sustainability</div>
+            <div class="bib-source"><a href="https://wavesandwifi.com/about-waves-wifi/" target="_blank">wavesandwifi.com/about</a></div>
+            <div class="bib-date">Scraped Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot verified"></span></span>
+        </div>
+        <div class="bib-item">
+          <span class="bib-icon web">🌐</span>
+          <div>
+            <div class="bib-field">Photos (30 images)</div>
+            <div class="bib-source"><a href="https://wavesandwifi.com" target="_blank">wavesandwifi.com (all pages)</a></div>
+            <div class="bib-date">Downloaded Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot verified"></span></span>
+        </div>
+        <div class="bib-item">
+          <span class="bib-icon api">⚡</span>
+          <div>
+            <div class="bib-field">GPS coordinates</div>
+            <div class="bib-source">Google Maps geocode API</div>
+            <div class="bib-date">Feb 16, 2026</div>
+          </div>
+          <span class="bib-status"><span class="source-dot verified"></span></span>
+        </div>
+      </div>
+      <div class="source-legend">
+        <span><span class="legend-dot" style="background:var(--green)"></span> Verified</span>
+        <span><span class="legend-dot" style="background:var(--yellow)"></span> Needs review</span>
+        <span><span class="legend-dot" style="background:var(--gray-300)"></span> Missing</span>
+      </div>
+    </div>
+
+    <!-- Activity -->
+    <div class="sidebar-card" style="margin-top:1rem">
+      <h4>🕐 Recent Activity</h4>
+      <div class="activity-item"><span class="time">2m ago</span> Tags removed (design simplification)</div>
+      <div class="activity-item"><span class="time">2h ago</span> Gallery images swapped to landscape</div>
+      <div class="activity-item"><span class="time">3d ago</span> 30 photos scraped from wavesandwifi.com</div>
+      <div class="activity-item"><span class="time">3d ago</span> Initial data import from website</div>
+      <div class="activity-item"><span class="time">3d ago</span> Listing created by Jerry (AI)</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
