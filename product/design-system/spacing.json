@@ -1,0 +1,51 @@
+{
+  "_description": "Roamera spacing and layout tokens — from Waves & WiFi concept",
+
+  "border-radius": {
+    "default": "0.75rem (12px)",
+    "lg": "1rem (16px)",
+    "xl": "1.25rem (20px)",
+    "pill": "2rem (32px)",
+    "circle": "50%",
+    "usage": {
+      "cards": "radius-lg (1rem) — room cards, review cards, booking card",
+      "gallery": "radius-xl (1.25rem) — photo gallery container",
+      "buttons": "radius (0.75rem) — standard buttons",
+      "tags-pills": "pill (2rem) — tags, pills, search bar, avatar",
+      "thumbnails": "0.25rem — lightbox thumbnails"
+    }
+  },
+
+  "layout": {
+    "max-width": "1200px",
+    "page-padding": "2rem (desktop), 1.25rem (mobile)",
+    "topbar-height": "64px",
+    "listing-grid": "1fr 380px with 3rem gap (desktop), single column (tablet/mobile)",
+    "section-gap": "2rem padding-bottom + 2rem margin-bottom + 1px border-bottom gray-200"
+  },
+
+  "spacing-scale": {
+    "section-padding": "padding-bottom: 2rem; margin-bottom: 2rem",
+    "section-title-mb": "0.75rem",
+    "card-padding": "1rem (room cards), 1.25rem (review cards), 1.75rem (booking card)",
+    "grid-gap-lg": "3rem (listing columns)",
+    "grid-gap-md": "1rem (highlights, rooms scroll, cowork features)",
+    "grid-gap-sm": "0.5rem (gallery, community photos, location details)",
+    "inline-gap": "0.5rem (tags, breadcrumbs), 0.75rem (reviews header, amenities)",
+    "topbar-nav-gap": "1.5rem",
+    "divider-margin": "1.25rem top + 1.25rem bottom"
+  },
+
+  "responsive-breakpoints": {
+    "desktop": "> 1024px — two-column listing layout, 4-column highlights, full gallery",
+    "tablet": "768-1024px — single column, booking card moves to top, 2-column amenities",
+    "mobile": "480-768px — 2-column gallery (hide 4th+), 2-column highlights, stack cowork pricing",
+    "small": "< 480px — single image gallery, 2-column highlights"
+  },
+
+  "sticky-elements": {
+    "topbar": "sticky top:0 z:100",
+    "booking-card": "sticky top:80px (desktop only, relative on mobile)",
+    "section-nav": "not sticky (scrolls with page under gallery)"
+  }
+}
