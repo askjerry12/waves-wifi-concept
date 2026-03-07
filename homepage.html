@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roamera — Find Your Vibe, Anywhere in the World</title>
+  <meta name="description" content="Discover coliving spaces for digital nomads across Latin America, Europe, and beyond. Real reviews, real vibes, real community.">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --coral: #E07A5F;
+      --coral-dark: #c4613f;
+      --sand: #FDF6EC;
+      --sand-dark: #F5E6CC;
+      --charcoal: #2D2D2D;
+      --gray-600: #555;
+      --gray-400: #999;
+      --white: #FFFFFF;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body { font-family: "DM Sans", -apple-system, sans-serif; color: var(--charcoal); background: var(--sand); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    /* TOPBAR */
+    .topbar { background: var(--white); border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .topbar-logo { font-family: "Playfair Display", serif; font-size: 1.6rem; font-weight: 600; color: var(--coral); text-decoration: none; }
+    .topbar-nav { display: flex; gap: 2rem; align-items: center; }
+    .topbar-nav a { font-size: 0.9rem; font-weight: 500; color: var(--gray-600); text-decoration: none; transition: color 0.2s; }
+    .topbar-nav a:hover { color: var(--coral); }
+
+    /* HERO */
+    .hero { position: relative; height: 80vh; min-height: 600px; max-height: 800px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .hero-bg { position: absolute; inset: 0; background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80") center/cover no-repeat; filter: brightness(0.55); }
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 700px; padding: 0 1.5rem; }
+    .hero-content h1 { font-family: "Playfair Display", serif; font-size: 3.5rem; font-weight: 600; color: var(--white); line-height: 1.15; margin-bottom: 0.75rem; text-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+    .hero-content h1 em { font-style: italic; color: #FFD6A5; }
+    .hero-subtitle { font-size: 1.15rem; color: rgba(255,255,255,0.88); margin-bottom: 2rem; font-weight: 400; }
+    /* NEW SLEEK MINIMAL SEARCH BAR (like screenshot) */
+    .search-container {
+      max-width: 80%;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      background-color: #f8f9fa;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-field {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      position: relative;
+    }
+
+    .search-field:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 60%;
+      background-color: #ddd;
+    }
+
+    .search-label {
+      font-size: 0.7rem;
+      color: #777;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      padding: 0;
+      font-size: 1rem;
+      font-family: inherit;
+      color: #333;
+      background-color: transparent;
+      width: 100%;
+    }
+
+    .search-input::placeholder {
+      color: #999;
+    }
+
+    .search-field select.search-input {
+      appearance: none;
+      padding-right: 1.5rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1em;
+      cursor: pointer;
+    }
+
+    .search-button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 1rem 1.5rem;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 0 24px 24px 0;
+      transition: background-color 0.2s;
+    }
+
+    .search-button:hover {
+      background-color: #111;
+    }
+
+    @media (max-width: 768px) {
+      .search-container {
+        max-width: 95%;
+        padding: 0.5rem;
+      }
+
+      .search-form {
+        flex-direction: column;
+      }
+
+      .search-field {
+        padding: 0.75rem;
+      }
+
+      .search-field:not(:last-child)::after {
+        display: none;
+      }
+
+      .search-button {
+        border-radius: 0 0 24px 24px;
+        padding: 1rem;
+      }
+    }
+
+
+    /* STATS */
+    .stats-strip { display: flex; justify-content: center; gap: 3rem; padding: 1.5rem 2rem; background: var(--white); border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .stat { text-align: center; }
+    .stat-number { font-size: 1.5rem; font-weight: 700; color: var(--coral); }
+    .stat-label { font-size: 0.8rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* SECTIONS */
+    section { padding: 4rem 2rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 2.5rem; }
+    .section-header h2 { font-family: "Playfair Display", serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .section-header p { color: var(--gray-600); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+
+    /* COUNTRY PILLS */
+    .pill-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+    .pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 10px 20px; background: var(--sand); border: 1px solid rgba(0,0,0,0.06); border-radius: 50px; font-size: 0.9rem; font-weight: 500; color: var(--charcoal); text-decoration: none; cursor: pointer; transition: all 0.2s; }
+    .pill:hover, .pill.active { background: var(--coral); color: white; border-color: var(--coral); transform: translateY(-1px); }
+    .pill .count { background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .pill:hover .count, .pill.active .count { background: rgba(255,255,255,0.25); }
+
+    /* PROPERTY CARDS */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .card { background: var(--white); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: block; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+    .card-img { width: 100%; height: 210px; object-fit: cover; display: block; }
+    .card-img-ph { width: 100%; height: 210px; background: linear-gradient(135deg, var(--sand-dark), var(--sand)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .card-body { padding: 1.25rem; }
+    .card-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 50px; margin-bottom: 0.5rem; }
+    .badge-coliving { background: #E8F5E9; color: #2E7D32; }
+    .badge-hostel { background: #E3F2FD; color: #1565C0; }
+    .card-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.25rem; line-height: 1.3; }
+    .card-location { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.75rem; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .card-rating { font-size: 0.85rem; font-weight: 600; }
+    .card-rating .star { color: #F4A261; }
+    .card-reviews { font-size: 0.8rem; color: var(--gray-400); font-weight: 400; }
+
+    /* SEARCH RESULTS SECTION */
+    #searchResults { display: none; background: var(--white); border-bottom: 1px solid rgba(0,0,0,0.06); }
+    #searchResults.visible { display: block; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+    .results-title { font-size: 1.25rem; font-weight: 600; }
+    .results-count { font-size: 0.85rem; color: var(--gray-400); }
+    .results-clear { background: none; border: 1px solid var(--gray-400); color: var(--gray-600); padding: 6px 16px; border-radius: 50px; cursor: pointer; font-size: 0.85rem; font-family: inherit; transition: all 0.2s; }
+    .results-clear:hover { border-color: var(--coral); color: var(--coral); }
+    .no-results { text-align: center; padding: 3rem 2rem; color: var(--gray-400); }
+    .no-results p { font-size: 1.1rem; margin-bottom: 0.5rem; }
+
+    /* CITY GUIDES */
+    .city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+    .city-card { position: relative; border-radius: var(--radius); overflow: hidden; height: 260px; text-decoration: none; color: white; display: flex; align-items: flex-end; transition: transform 0.2s; }
+    .city-card:hover { transform: translateY(-4px); }
+    .city-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); transition: filter 0.3s; }
+    .city-card:hover img { filter: brightness(0.4); }
+    .city-card-body { position: relative; z-index: 2; padding: 1.5rem; width: 100%; }
+    .city-card-body h3 { font-family: "Playfair Display", serif; font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .city-card-body span { font-size: 0.85rem; opacity: 0.85; }
+
+    /* CTA + FOOTER */
+    .destinations { background: var(--white); }
+    .cta-section { background: linear-gradient(135deg, var(--coral), #c4613f); text-align: center; color: white; }
+    .cta-section h2 { font-family: "Playfair Display", serif; font-size: 2rem; margin-bottom: 0.75rem; }
+    .cta-section p { font-size: 1.05rem; opacity: 0.9; margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .cta-btn { display: inline-block; background: white; color: var(--coral); padding: 14px 36px; border-radius: 50px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .footer { background: var(--charcoal); color: rgba(255,255,255,0.7); padding: 3rem 2rem; text-align: center; font-size: 0.85rem; }
+    .footer a { color: var(--coral); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .hero { height: 65vh; min-height: 420px; }
+      .hero-content h1 { font-size: 2.2rem; }
+      .stats-strip { gap: 1.5rem; flex-wrap: wrap; }
+      .search-container { margin: 0 1.5rem; }
+      .search-form { flex-direction: column; border-radius: 16px; }
+      .search-field { width: 100%; padding: 18px 20px; min-height: auto; }
+      .search-field:not(:last-child)::after { display: none; }
+      .search-button { width: 100%; padding: 20px; justify-content: center; margin-top: 0; border-radius: 0 0 12px 12px; }
+      .search-bar button { border-radius: var(--radius-sm); margin: 0 6px 6px; }
+      .topbar-nav { gap: 1rem; }
+      section { padding: 3rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="homepage.html" class="topbar-logo">Roamera</a>
+  <div class="topbar-nav">
+    <a href="#destinations">Destinations</a>
+    <a href="#spaces">Spaces</a>
+    <a href="#">Blog</a>
+    <a href="#">About</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1>Live Anywhere.<br><em>Belong Everywhere.</em></h1>
+    <p class="hero-subtitle">Discover coliving spaces built for remote workers, nomads, and adventurers across Latin America and beyond.</p>
+    <div class="search-container">
+      <div class="search-form">
+        <div class="search-field">
+          <label for="searchInput" class="search-label">Location</label>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search destinations..." autocomplete="off">
+        </div>
+        <div class="search-field">
+          <label for="checkin" class="search-label">Check-in</label>
+          <input type="text" id="checkin" class="search-input" placeholder="Add dates" readonly style="color: var(--gray-400);">
+        </div>
+        <div class="search-field">
+          <label for="checkout" class="search-label">Check-out</label>
+          <input type="text" id="checkout" class="search-input" placeholder="Add dates" readonly style="color: var(--gray-400);">
+        </div>
+        <div class="search-field">
+          <label for="guests" class="search-label">Guests</label>
+          <select id="guests" class="search-input">
+            <option>1 guest</option>
+            <option>2 guests</option>
+            <option>3 guests</option>
+            <option>4+ guests</option>
+          </select>
+        </div>
+        <button class="search-button" onclick="doSearch()">
+          Search
+        </button>
+      </div>
+      <!-- Hidden accommodation type filter for functionality -->
+      <select id="accommodationType" style="display: none;">
+        <option value="">Any type</option>
+        <option value="coliving">🏠 Coliving</option>
+        <option value="hostel">🛏️ Hostel + Coworking</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-number">84</div><div class="stat-label">Spaces</div></div>
+  <div class="stat"><div class="stat-number">17</div><div class="stat-label">Countries</div></div>
+  <div class="stat"><div class="stat-number">25K+</div><div class="stat-label">Reviews</div></div>
+  <div class="stat"><div class="stat-number">4.7&#9733;</div><div class="stat-label">Avg Rating</div></div>
+</div>
+
+<!-- SEARCH RESULTS (hidden until search) -->
+<section id="searchResults">
+  <div class="section-inner">
+    <div class="results-header">
+      <div>
+        <div class="results-title" id="resultsTitle">Results</div>
+        <div class="results-count" id="resultsCount"></div>
+      </div>
+      <button class="results-clear" onclick="clearSearch()">✕ Clear</button>
+    </div>
+    <div id="resultsGrid" class="card-grid"></div>
+  </div>
+</section>
+
+<!-- COUNTRY PILLS -->
+<section class="destinations" id="destinations">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Explore by Country</h2>
+      <p>From the beaches of Brazil to the highlands of Colombia — find your next home base.</p>
+    </div>
+    <div class="pill-grid" id="pillGrid">
+      <button class="pill" onclick="filterCountry('Mexico')">&#127474;&#127485; Mexico <span class="count">18</span></button>
+      <button class="pill" onclick="filterCountry('Colombia')">&#127464;&#127476; Colombia <span class="count">18</span></button>
+      <button class="pill" onclick="filterCountry('Brazil')">&#127463;&#127479; Brazil <span class="count">16</span></button>
+      <button class="pill" onclick="filterCountry('Peru')">&#127477;&#127466; Peru <span class="count">6</span></button>
+      <button class="pill" onclick="filterCountry('United States')">&#127482;&#127480; United States <span class="count">5</span></button>
+      <button class="pill" onclick="filterCountry('Ecuador')">&#127466;&#127464; Ecuador <span class="count">5</span></button>
+      <button class="pill" onclick="filterCountry('Costa Rica')">&#127464;&#127479; Costa Rica <span class="count">4</span></button>
+      <button class="pill" onclick="filterCountry('Argentina')">&#127462;&#127479; Argentina <span class="count">3</span></button>
+      <button class="pill" onclick="filterCountry('Suriname')">&#127480;&#127479; Suriname <span class="count">3</span></button>
+      <button class="pill" onclick="filterCountry('Nicaragua')">&#127475;&#127470; Nicaragua <span class="count">2</span></button>
+      <button class="pill" onclick="filterCountry('Bolivia')">&#127463;&#127476; Bolivia <span class="count">2</span></button>
+      <button class="pill" onclick="filterCountry('Portugal')">&#127477;&#127481; Portugal <span class="count">2</span></button>
+      <button class="pill" onclick="filterCountry('Indonesia')">&#127470;&#127465; Indonesia <span class="count">1</span></button>
+      <button class="pill" onclick="filterCountry('Honduras')">&#127469;&#127475; Honduras <span class="count">1</span></button>
+      <button class="pill" onclick="filterCountry('Paraguay')">&#127477;&#127486; Paraguay <span class="count">1</span></button>
+      <button class="pill" onclick="filterCountry('Uruguay')">&#127482;&#127486; Uruguay <span class="count">1</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- CITY GUIDES -->
+<section id="cities">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>City Guides</h2>
+      <p>Deep dives into the best nomad cities — neighborhoods, costs, coworking, community.</p>
+    </div>
+    <div class="city-grid">
+      <a href="#" class="city-card">
+        <img src="https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=600&q=80" alt="Medell&#237;n" loading="lazy">
+        <div class="city-card-body"><h3>Medell&#237;n</h3><span>9 spaces &middot; Colombia</span></div>
+      </a>
+      <a href="#" class="city-card">
+        <img src="https://images.unsplash.com/photo-1619546952812-520e98064a52?w=600&q=80" alt="Florian&#243;polis" loading="lazy">
+        <div class="city-card-body"><h3>Florian&#243;polis</h3><span>5 spaces &middot; Brazil</span></div>
+      </a>
+      <a href="#" class="city-card">
+        <img src="https://images.unsplash.com/photo-1518638150340-f706e86654de?w=600&q=80" alt="Oaxaca" loading="lazy">
+        <div class="city-card-body"><h3>Oaxaca</h3><span>3 spaces &middot; Mexico</span></div>
+      </a>
+      <a href="#" class="city-card">
+        <img src="https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=600&q=80" alt="Buenos Aires" loading="lazy">
+        <div class="city-card-body"><h3>Buenos Aires</h3><span>3 spaces &middot; Argentina</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED SPACES -->
+<section class="destinations" id="spaces">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Top-Rated Spaces</h2>
+      <p>Highest rated by real travelers — verified Google reviews, no cherry-picking.</p>
+    </div>
+    <div class="card-grid" id="featuredGrid"></div>
+    <div style="text-align:center;margin-top:2rem;">
+      <a href="#" onclick="showAll();return false;" style="color:var(--coral);font-weight:600;text-decoration:none;font-size:0.95rem;">View all 84 spaces &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to Work from Anywhere?</h2>
+  <p>Join thousands of nomads who found their next home base through Roamera.</p>
+  <a href="#spaces" class="cta-btn">Browse All Spaces</a>
+</section>
+
+<footer class="footer">
+  <p style="margin-bottom:0.5rem;"><strong style="color:white;">Roamera</strong> &mdash; Coliving for the curious.</p>
+  <p>&copy; 2026 Roamera. Built with &#9728;&#65039; from wherever we are today.</p>
+</footer>
+
+<script>
+const ALL_PROPERTIES = [{"slug": "aldea-tuya-220-oaxaca-de-ju-rez-mexico", "name": "Aldea Tuya | 220", "city": "Oaxaca de Juárez", "country": "Mexico", "property_type": "Coliving", "rating": 5, "review_count": 5, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/6db4d333-d8c4-4f00-2420-fa1f5ed69000/public"}, {"slug": "amplitude-coliving-puerto-escondido-san-francisco-united-states", "name": "Amplitude Coliving Puerto Escondido", "city": "San Francisco", "country": "United States", "property_type": "Hostel + Coworking", "rating": 5, "review_count": 40, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/d2cc0bad-1133-4dd2-b38d-346fc03c3d00/public"}, {"slug": "bohemia-boutique-hostel-co-living-cali-colombia", "name": "Bohemia Boutique Hostel & Co-Living", "city": "Cali", "country": "Colombia", "property_type": "Coliving", "rating": 5, "review_count": 133, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/137687e2-618f-4d00-a540-041a67eb0c00/public"}, {"slug": "casa-mar-coliving-coworking-community-florian-polis-brazil", "name": "Casa Maré - Coliving, Coworking & Community", "city": "Florianópolis", "country": "Brazil", "property_type": "Coliving", "rating": 5, "review_count": 12, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/eef78547-99d9-4403-f9d4-fff031973a00/public"}, {"slug": "codreamers-coliving-palermo-recoleta-pisos-compartidos-buenos-aires-argentina", "name": "Codreamers Coliving Palermo-Recoleta. Pisos Compartidos", "city": "Buenos Aires", "country": "Argentina", "property_type": "Coliving", "rating": 5, "review_count": 13, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c4b661bd-d9fa-4ad0-433f-a70cc1642000/public"}, {"slug": "coliving-casa-jeriv-florian-polis-brazil", "name": "Coliving Casa Jerivá", "city": "Florianópolis", "country": "Brazil", "property_type": "Coliving", "rating": 5, "review_count": 7, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/85e180ac-c22e-42af-3920-0338ab88f700/public"}, {"slug": "coliving-home-quito-quito-ecuador", "name": "Coliving Home Quito", "city": "Quito", "country": "Ecuador", "property_type": "Coliving", "rating": 5, "review_count": 4, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/99f5461f-83f8-4e36-f979-f9e1e68ca700/public"}, {"slug": "coliving-mun-florian-polis-brazil", "name": "Coliving Muní", "city": "Florianópolis", "country": "Brazil", "property_type": "Coliving", "rating": 5, "review_count": 3, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/96d947d9-6eec-4f12-057f-2748e9dff600/public"}, {"slug": "draper-startup-house-by-lawi-rio-de-janeiro-brazil", "name": "Draper Startup House by Lawi", "city": "Rio de Janeiro", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 5, "review_count": 101, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/8d1467ec-59b7-4014-c00f-31e30efa6700/public"}, {"slug": "horizonte-coliving-belo-horizonte-brazil", "name": "Horizonte Coliving", "city": "Belo Horizonte", "country": "Brazil", "property_type": "Coliving", "rating": 5, "review_count": 37, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/9d1bde95-7b38-401e-6080-e331f2c86b00/public"}, {"slug": "pandora-s-house-coliving-envigado-colombia", "name": "Pandora's House Coliving", "city": "Envigado", "country": "Colombia", "property_type": "Coliving", "rating": 5, "review_count": 77, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/b0ed5383-d4d4-4e74-df7e-f687d19aac00/public"}, {"slug": "t-aqui-casa-de-viv-ncias-ponto-de-cultura-ateli-hospedagens-loja-colaborativa-est-dio-de-tatuagem-ubatuba-brazil", "name": "Tô Aqui! Casa de Vivências | Ponto de Cultura | Ateliê | Hospedagens | Loja Colaborativa | Estúdio de Tatuagem", "city": "Ubatuba", "country": "Brazil", "property_type": "Coliving", "rating": 5, "review_count": 20, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/2317b8ff-873d-4747-e6dc-d6aadab41400/public"}, {"slug": "codreamers-coliving-buenos-aires-argentina", "name": "coDreamers Coliving", "city": "Buenos Aires", "country": "Argentina", "property_type": "Hostel + Coworking", "rating": 5, "review_count": 37, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/63f59590-15bd-4213-fa8c-9a8a0f15ab00/public"}, {"slug": "balu-coliving-medellin-medell-n-colombia", "name": "Balu Coliving - Medellin", "city": "Medellín", "country": "Colombia", "property_type": "Hostel + Coworking", "rating": 4.9, "review_count": 28, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/aeb368e1-5211-454d-abbd-3f46b611b100/public"}, {"slug": "co404-san-cris-coliving-coworking-san-crist-bal-de-las-casas-mexico", "name": "Co404 San Cris - Coliving/Coworking", "city": "San Cristóbal de las Casas", "country": "Mexico", "property_type": "Coliving", "rating": 4.9, "review_count": 75, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e665064e-30d9-420c-93b6-bec9f1868c00/public"}, {"slug": "cornerstone-coliving-kabupaten-badung-indonesia", "name": "Cornerstone Coliving", "city": "Kabupaten Badung", "country": "Indonesia", "property_type": "Coliving", "rating": 4.9, "review_count": 122, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/ebf68ab7-aa36-40cf-d46b-1c2afa9e7800/public"}, {"slug": "el-mundito-coliving-puerto-escondido-puerto-escondido-mexico", "name": "El Mundito Coliving - Puerto Escondido", "city": "Puerto Escondido", "country": "Mexico", "property_type": "Coliving", "rating": 4.9, "review_count": 59, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/82589198-f055-4b76-7033-3cebcbe2b600/public"}, {"slug": "maoklyn-apartments-paramaribo-suriname", "name": "Maoklyn Apartments", "city": "Paramaribo", "country": "Suriname", "property_type": "Hostel + Coworking", "rating": 4.9, "review_count": 7, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/edffef3a-c625-4fe5-55d1-9c67dd78b500/public"}, {"slug": "nomads-multiespa-o-carnaval-barra-salvador-brazil", "name": "Nomads Multiespaço - CARNAVAL Barra", "city": "Salvador", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.9, "review_count": 412, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e0cd1c16-c25f-4795-c42f-f23016d06300/public"}, {"slug": "outsite-oaxaca-city-oaxaca-de-ju-rez-mexico", "name": "Outsite Oaxaca City", "city": "Oaxaca de Juárez", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.9, "review_count": 61, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/f6d760f2-c646-4023-2f2d-bf87f19a4200/public"}, {"slug": "surfbreak-pxm-coliving-coworking-ayoquezco-de-aldama-mexico", "name": "Surfbreak PXM (Coliving + Coworking)", "city": "Ayoquezco de Aldama", "country": "Mexico", "property_type": "Coliving", "rating": 4.9, "review_count": 88, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/d010d505-a28d-4462-c438-c2eafdc14800/public"}, {"slug": "tribu-coliving-envigado-colombia", "name": "Tribu Coliving", "city": "Envigado", "country": "Colombia", "property_type": "Coliving", "rating": 4.9, "review_count": 12, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/5273b4a2-4d46-4d8f-e9a5-c88ca7942300/public"}, {"slug": "vega-community-honduras-la-fortaleza-honduras", "name": "VeGa Community Honduras", "city": "La Fortaleza", "country": "Honduras", "property_type": "Coliving", "rating": 4.9, "review_count": 32, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/f02b628e-d830-4686-72ed-675fd98ec600/public"}, {"slug": "waves-wifi-las-salinas-nicaragua", "name": "Waves & Wifi", "city": "Las Salinas", "country": "Nicaragua", "property_type": "Hostel + Coworking", "rating": 4.9, "review_count": 105, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/6562572a-c4d3-4707-63db-3486148e2100/public"}, {"slug": "anana-coliving-playa-del-carmen-mexico", "name": "Anana Coliving", "city": "Playa del Carmen", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 267, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/bba3f90c-88c7-40fd-7765-15b401013c00/public"}, {"slug": "co404-medellin-medell-n-colombia", "name": "Co404 Medellin ", "city": "Medellín", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 37, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/1db58fc9-1847-49a9-985c-36b209853b00/public"}, {"slug": "coliving-brooklin-e-ch-cara-santo-ant-nio-loca-o-de-quartos-s-o-paulo-brazil", "name": "Coliving Brooklin e Chácara Santo Antônio locação de quartos", "city": "São Paulo", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 60, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e6975acc-ff82-4c11-6831-e9655cf77600/public"}, {"slug": "el-cielo-montanita-monta-ita-ecuador", "name": "El Cielo Montanita", "city": "Montañita", "country": "Ecuador", "property_type": "Coliving", "rating": 4.8, "review_count": 142, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/5ab101d3-cdc1-47c5-0e5a-e6dd99c4d700/public"}, {"slug": "flow-coliving-puerto-escondido-mexico", "name": "Flow Coliving", "city": "Puerto Escondido", "country": "Mexico", "property_type": "Coliving", "rating": 4.8, "review_count": 50, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/83c5d544-95de-4114-793c-787d732a2200/public"}, {"slug": "la-grutacoliving-medell-n-colombia", "name": "La GrutaColiving", "city": "Medellín", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 43, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e47f875d-98cf-472d-a9c4-fd6a73ba3300/public"}, {"slug": "outsite-san-juan-del-sur-san-juan-del-sur-nicaragua", "name": "Outsite San Juan del Sur", "city": "San Juan del Sur", "country": "Nicaragua", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 28, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e37e8b3a-4bf3-4279-ff93-1a4e6bd6f400/public"}, {"slug": "outsite-santa-teresa-playa-santa-teresa-costa-rica", "name": "Outsite Santa Teresa - Playa", "city": "Santa Teresa", "country": "Costa Rica", "property_type": "Coliving", "rating": 4.8, "review_count": 45, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e6fb6d01-a217-44a6-fc9f-b1a03a688100/public"}, {"slug": "riverside-ecoliving-agency-antioquia-colombia", "name": "Riverside Ecoliving Agency", "city": "Antioquia", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 101, "photo": null}, {"slug": "riverside-ecoliving-agency-retiro-colombia", "name": "Riverside Ecoliving Agency", "city": "Retiro", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 101, "photo": null}, {"slug": "riverside-ecoliving-agency-jeric-colombia", "name": "Riverside Ecoliving Agency", "city": "Jericó", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 101, "photo": null}, {"slug": "riverside-ecoliving-capurgan-jeric-colombia", "name": "Riverside ecoliving - Capurganá", "city": "Jericó", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 101, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/00f106a3-6df1-4b70-02ec-023a9667d900/public"}, {"slug": "riverside-ecoliving-guatap-guatap-colombia", "name": "Riverside ecoliving - Guatapé", "city": "Guatapé", "country": "Colombia", "property_type": "Coliving", "rating": 4.8, "review_count": 101, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/0f3c79ed-f210-4fb6-d34d-b97caa431b00/public"}, {"slug": "rosemary-dream-hostel-coliving-florian-polis-brazil", "name": "Rosemary Dream | Hostel & Coliving", "city": "Florianópolis", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 40, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/3a9e6bdc-5bbe-43e3-2da7-3876efe1cb00/public"}, {"slug": "sam-apartment-cusco-air-bnb-en-cusco-apartamento-en-cusco-cusco-peru", "name": "SAM Apartment Cusco - Air BnB en Cusco, Apartamento en Cusco", "city": "Cusco", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 12, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/9be5debb-2477-422f-37e7-9bcad79a3800/public"}, {"slug": "uliving-campinas-moradia-universit-ria-campinas-brazil", "name": "Uliving Campinas - Moradia Universitária", "city": "Campinas", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.8, "review_count": 84, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/5901c0e9-7695-4444-8dfc-3178de236000/public"}, {"slug": "vibrant-coliving-buenos-aires-buenos-aires-argentina", "name": "Vibrant Coliving Buenos Aires", "city": "Buenos Aires", "country": "Argentina", "property_type": "Coliving", "rating": 4.8, "review_count": 42, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/9c50388c-05b0-4499-749c-b66c04188900/public"}, {"slug": "casa-paradiso-guesthouse-coworking-asunci-n-paraguay", "name": "Casa Paradiso Guesthouse & Coworking", "city": "Asunción", "country": "Paraguay", "property_type": "Coliving", "rating": 4.7, "review_count": 463, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/43521e1d-b79b-40fb-90ea-4bc970ecc100/public"}, {"slug": "eucalyptus-uyuni-uyuni-bolivia", "name": "Eucalyptus Uyuni", "city": "Uyuni", "country": "Bolivia", "property_type": "Hostel + Coworking", "rating": 4.7, "review_count": 187, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/03f742ea-8e32-4ff2-cddf-dc219ad37b00/public"}, {"slug": "hostal-cagnapa-restobar-uyuni-bolivia", "name": "Hostal Cagnapa Restobar", "city": "Uyuni", "country": "Bolivia", "property_type": "Hostel + Coworking", "rating": 4.7, "review_count": 61, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/619baecd-2ae5-4b3d-6589-c3c07f1eef00/public"}, {"slug": "la-tremenda-casa-coliving-cultural-bogot-colombia", "name": "La Tremenda Casa - Coliving Cultural", "city": "Bogotá", "country": "Colombia", "property_type": "Coliving", "rating": 4.7, "review_count": 107, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/360c7bc5-54b7-48ce-9cde-433f1b003900/public"}, {"slug": "las-torres-de-ugarte-arequipa-peru", "name": "Las Torres De Ugarte", "city": "Arequipa", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.7, "review_count": 179, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/55b21c16-bffd-4200-9d8f-ccb4ae759900/public"}, {"slug": "outsite-los-cabos-san-jos-del-cabo-mexico", "name": "Outsite Los Cabos", "city": "San José del Cabo", "country": "Mexico", "property_type": "Coliving", "rating": 4.7, "review_count": 51, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/6d3879f4-9648-4e9a-4659-6fd947927200/public"}, {"slug": "outsite-medell-n-manila-medell-n-colombia", "name": "Outsite Medellín - Manila", "city": "Medellín", "country": "Colombia", "property_type": "Hostel + Coworking", "rating": 4.7, "review_count": 41, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/d86796b0-b2f7-4e1d-0d07-250439476300/public"}, {"slug": "pousada-villa-capivary-campos-do-jord-o-brazil", "name": "Pousada Villa Capivary", "city": "Campos do Jordão", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.7, "review_count": 345, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/bbaaa980-749c-42f4-4a97-5a68b4e33200/public"}, {"slug": "stolas-coliving-san-pedro-costa-rica", "name": "Stolas Coliving", "city": "San Pedro", "country": "Costa Rica", "property_type": "Coliving", "rating": 4.7, "review_count": 55, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c99f3c89-6819-4e6d-1b66-5cb5dea7dc00/public"}, {"slug": "co404-oaxaca-coliving-coworking-ejido-del-centro-mexico", "name": "Co404 Oaxaca - Coliving/Coworking", "city": "Ejido del Centro", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.6, "review_count": 121, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/0f5abc61-b3ee-4bdd-42d5-073ad12b5800/public"}, {"slug": "flowhouse-jeri-jijoca-de-jericoacoara-brazil", "name": "FlowHouse Jeri", "city": "Jijoca de Jericoacoara", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.6, "review_count": 103, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/1687d6bd-7156-4841-bf47-d82602a4af00/public"}, {"slug": "planet-house-puerto-ayora-ecuador", "name": "Planet House", "city": "Puerto Ayora", "country": "Ecuador", "property_type": "Coliving", "rating": 4.6, "review_count": 49, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/4cdd8419-0ca7-448b-4771-5e09d485ea00/public"}, {"slug": "stone-house-mancora-m-ncora-peru", "name": "Stone House Mancora", "city": "Máncora", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.6, "review_count": 176, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/4b679266-db9b-4a49-af8a-e389b15d7e00/public"}, {"slug": "sunset-nomad-house-lisbon-portugal", "name": "Sunset Nomad House", "city": "Lisbon", "country": "Portugal", "property_type": "Coliving", "rating": 4.6, "review_count": 1288, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/3d889d12-bd66-4a48-ba8c-42d99d2fc100/public"}, {"slug": "unity-coliving-san-pedro-costa-rica", "name": "Unity Coliving", "city": "San Pedro", "country": "Costa Rica", "property_type": "Coliving", "rating": 4.6, "review_count": 66, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/d3b4a608-5ea7-410e-6699-0b19614cbb00/public"}, {"slug": "infinicoliving-cama-ari-brazil", "name": "INFINIColiving", "city": "Camaçari", "country": "Brazil", "property_type": "Coliving", "rating": 4.5, "review_count": 22, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/e90d67e5-09f0-4be3-872d-7e6ba99e1500/public"}, {"slug": "punta-la-barca-manta-ecuador", "name": "Punta la Barca", "city": "Manta", "country": "Ecuador", "property_type": "Coliving", "rating": 4.5, "review_count": 90, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/ae716f0e-adf6-4a3a-eded-860f2bb6fd00/public"}, {"slug": "gast-n-coliving-medell-n-colombia", "name": "Gastón Coliving", "city": "Medellín", "country": "Colombia", "property_type": "Coliving", "rating": 4.4, "review_count": 248, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/2b7beb12-d107-4a17-b3fb-3aa8bf561100/public"}, {"slug": "n-mades-riverside-adventure-hostels-coworking-florian-polis-brazil", "name": "Nômades Riverside | Adventure Hostels & Coworking", "city": "Florianópolis", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.4, "review_count": 224, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/6f93b868-256c-4c80-e905-38e5a3ef4c00/public"}, {"slug": "outsite-mexico-city-colonia-san-miguel-ciudad-de-m-xico-mexico", "name": "Outsite Mexico City - Colonia San Miguel", "city": "Ciudad de México", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.4, "review_count": 67, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/fd1dbfe1-e09b-4f41-4063-073346e88d00/public"}, {"slug": "pousada-maria-bonita-fernando-de-noronha-brazil", "name": "Pousada Maria Bonita", "city": "Fernando de Noronha", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.4, "review_count": 254, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/16a44345-637a-4354-d7e3-0b15bf352e00/public"}, {"slug": "socialtel-ba-os-ba-os-de-agua-santa-ecuador", "name": "Socialtel Baños", "city": "Baños de Agua Santa", "country": "Ecuador", "property_type": "Hostel + Coworking", "rating": 4.4, "review_count": 816, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/995a47bd-94da-4b89-296c-223799857c00/public"}, {"slug": "u-co-roma-ciudad-de-m-xico-mexico", "name": "U-Co Roma", "city": "Ciudad de México", "country": "Mexico", "property_type": "Coliving", "rating": 4.4, "review_count": 88, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/a881cc85-e3a2-44ed-f2bd-9dbe0a845c00/public"}, {"slug": "international-house-co-living-medellin-medell-n-colombia", "name": "International House Co-Living, Medellin", "city": "Medellín", "country": "Colombia", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 321, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/7a493c8a-3162-4c4e-86dd-881bc43b2a00/public"}, {"slug": "n-lu-by-selina-cancun-downtown-canc-n-mexico", "name": "Nílu by Selina Cancun Downtown", "city": "Cancún", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 5393, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/d408e317-ccd1-46b0-7bdf-3880641e3900/public"}, {"slug": "selina-isla-mujeres-isla-mujeres-mexico", "name": "Selina - Isla Mujeres", "city": "Isla Mujeres", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 2742, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/58b61057-f3cf-4b93-0d42-cee4f55f0d00/public"}, {"slug": "selina-miraflores-lima-miraflores-peru", "name": "Selina - Miraflores, Lima", "city": "Miraflores", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 489, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/44fb9267-b293-461f-ae2e-37319270a900/public"}, {"slug": "selina-posada-miraflores-miraflores-peru", "name": "Selina - Posada Miraflores", "city": "Miraflores", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 489, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/35535eea-357b-489e-d5fd-145f747abe00/public"}, {"slug": "socialtel-jaco-jac-costa-rica", "name": "Socialtel Jaco", "city": "Jacó", "country": "Costa Rica", "property_type": "Coliving", "rating": 4.3, "review_count": 1921, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/677d82cc-7c28-4d9f-d088-6ebfcae24600/public"}, {"slug": "viv-re-coliving-rio-de-janeiro-brazil", "name": "Vivére Coliving", "city": "Rio de Janeiro", "country": "Brazil", "property_type": "Hostel + Coworking", "rating": 4.3, "review_count": 16, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/4c160ebb-606b-4d7b-6808-4369ab807c00/public"}, {"slug": "indie-studio-creative-coliving-medell-n-colombia", "name": "Indie Studio - Creative Coliving", "city": "Medellín", "country": "Colombia", "property_type": "Hostel + Coworking", "rating": 4.2, "review_count": 28, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/7a76d5bd-edea-44d1-5a13-d5a693015e00/public"}, {"slug": "loki-mancora-m-ncora-peru", "name": "Loki Mancora", "city": "Máncora", "country": "Peru", "property_type": "Hostel + Coworking", "rating": 4.2, "review_count": 2463, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/177d768b-1026-4eca-4c65-2eb7767d9800/public"}, {"slug": "selina-puerto-escondido-brisas-de-zicatela-mexico", "name": "Selina - Puerto Escondido", "city": "Brisas de Zicatela", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4.2, "review_count": 1786, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/8deed3a7-35a7-4e66-a692-4bbe07efc800/public"}, {"slug": "zag-coliving-punta-del-este-uruguay", "name": "ZAG Coliving", "city": "Punta del Este", "country": "Uruguay", "property_type": "Hostel + Coworking", "rating": 4.1, "review_count": 112, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/02f6fa44-8551-4779-e7d6-1e9e377df300/public"}, {"slug": "selina-oaxaca-oaxaca-de-ju-rez-mexico", "name": "Selina - Oaxaca", "city": "Oaxaca de Juárez", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 4, "review_count": 833, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/2fbcd699-7811-41c0-ef17-60a588c53000/public"}, {"slug": "spark-coworking-and-coliving-medell-n-colombia", "name": "Spark CoWorking and CoLiving", "city": "Medellín", "country": "Colombia", "property_type": "Coliving", "rating": 4, "review_count": 4, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/117c7594-a913-40e1-f4e3-9c4f7ba7a900/public"}, {"slug": "nora-coliving-guadalajara-mexico", "name": "Nora Coliving", "city": "Guadalajara", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 3.9, "review_count": 182, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/c8daf261-fe5c-4f76-515b-43d18a040f00/public"}, {"slug": "selina-san-miguel-de-allende-san-miguel-de-allende-mexico", "name": "Selina - San Miguel de Allende", "city": "San Miguel de Allende", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": 3.8, "review_count": 482, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/dc797273-1bec-4a3e-2a93-8a4f6c338100/public"}, {"slug": "stagewoning-paramaribo-suriname", "name": "Stagewoning", "city": "Paramaribo", "country": "Suriname", "property_type": "Coliving", "rating": 3.7, "review_count": 3, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/2c78d337-5c91-4d80-d2bc-867313b6bf00/public"}, {"slug": "lagos-marina-guest-house-lagos-portugal", "name": "Lagos Marina Guest House", "city": "Lagos", "country": "Portugal", "property_type": "Coliving", "rating": null, "review_count": null, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/4d43e83d-f4b5-4b07-4455-a23306ba8d00/public"}, {"slug": "outsite-san-miguel-de-allende-san-miguel-de-allende-mexico", "name": "Outsite San Miguel de Allende", "city": "San Miguel de Allende", "country": "Mexico", "property_type": "Hostel + Coworking", "rating": null, "review_count": null, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/7aae7ee8-3e98-4b43-911f-3a2539c5e100/public"}, {"slug": "walking-tree-apartments-paramaribo-suriname", "name": "Walking Tree Apartments", "city": "Paramaribo", "country": "Suriname", "property_type": "Coliving", "rating": null, "review_count": null, "photo": "https://imagedelivery.net/3fATqwJgFWFpye0VxedTCw/bf7e7275-2bd7-43f0-ba98-3fab26887300/public"}];
+
+function makeCard(p) {
+  const isColiving = p.property_type === 'Coliving';
+  const badge = isColiving
+    ? '<span class="card-badge badge-coliving">&#127968; Coliving</span>'
+    : '<span class="card-badge badge-hostel">&#128717; Hostel + Coworking</span>';
+  const photo = p.photo
+    ? `<img class="card-img" src="${p.photo}" alt="${escHtml(p.name)}" loading="lazy">`
+    : `<div class="card-img-ph">&#127968;</div>`;
+  const ratingEl = p.rating
+    ? `<span class="card-rating"><span class="star">&#9733;</span> ${p.rating} <span class="card-reviews">&middot; ${(p.review_count||0).toLocaleString()} reviews</span></span>`
+    : `<span class="card-reviews">No reviews yet</span>`;
+  return `<a href="/listings/${p.slug}/" class="card">
+    ${photo}
+    <div class="card-body">
+      ${badge}
+      <div class="card-name">${escHtml(p.name)}</div>
+      <div class="card-location">${escHtml(p.city)}, ${escHtml(p.country)}</div>
+      <div class="card-footer">${ratingEl}</div>
+    </div>
+  </a>`;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Render featured (top 6 by reviews among rated)
+function renderFeatured() {
+  const top = ALL_PROPERTIES
+    .filter(p => p.rating && p.review_count)
+    .sort((a,b) => (b.rating - a.rating) || (b.review_count - a.review_count))
+    .slice(0, 6);
+  document.getElementById('featuredGrid').innerHTML = top.map(makeCard).join('');
+}
+
+// Search / filter
+let activeCountry = null;
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  const accommodationType = document.getElementById('accommodationType').value;
+  
+  // If both empty, clear search
+  if (!q && !accommodationType) { clearSearch(); return; }
+  
+  activeCountry = null;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  const ql = q.toLowerCase();
+  
+  const results = ALL_PROPERTIES.filter(p => {
+    // Text search
+    const matchesText = !q || 
+      p.name.toLowerCase().includes(ql) ||
+      p.city.toLowerCase().includes(ql) ||
+      p.country.toLowerCase().includes(ql);
+    
+    // Accommodation type filter
+    let matchesType = true;
+    if (accommodationType === 'coliving') {
+      matchesType = p.property_type === 'coliving' || p.name.toLowerCase().includes('coliving') || p.name.toLowerCase().includes('co-living');
+    } else if (accommodationType === 'hostel') {
+      matchesType = p.property_type === 'hostel' || p.name.toLowerCase().includes('hostel');
+    }
+    
+    return matchesText && matchesType;
+  });
+  
+  // Build title
+  let title = 'Results';
+  if (q) title += ` for "${q}"`;
+  if (accommodationType) {
+    const typeLabel = accommodationType === 'coliving' ? '🏠 Coliving' : '🛏️ Hostel + Coworking';
+    title += (q ? ' + ' : ' for ') + typeLabel;
+  }
+  
+  showResults(results, title);
+}
+
+function filterCountry(country) {
+  activeCountry = country;
+  document.getElementById('searchInput').value = country;
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.textContent.includes(country));
+  });
+  const results = ALL_PROPERTIES.filter(p => p.country === country);
+  results.sort((a,b) => (b.rating||0) - (a.rating||0) || (b.review_count||0) - (a.review_count||0));
+  showResults(results, country);
+  document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showAll() {
+  activeCountry = null;
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  const results = [...ALL_PROPERTIES].sort((a,b) => (b.rating||0) - (a.rating||0) || (b.review_count||0) - (a.review_count||0));
+  showResults(results, 'All Spaces');
+  document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showResults(results, label) {
+  const sec = document.getElementById('searchResults');
+  const grid = document.getElementById('resultsGrid');
+  document.getElementById('resultsTitle').textContent = label;
+  document.getElementById('resultsCount').textContent = `${results.length} space${results.length !== 1 ? 's' : ''} found`;
+  if (results.length === 0) {
+    grid.innerHTML = '<div class="no-results"><p>No spaces found.</p><p style="font-size:.9rem">Try a different search — we have spaces in 17 countries.</p></div>';
+  } else {
+    grid.innerHTML = results.map(makeCard).join('');
+  }
+  sec.classList.add('visible');
+}
+
+function clearSearch() {
+  activeCountry = null;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').classList.remove('visible');
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+}
+
+// Enter key search
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+// Date inputs are readonly for now (would use date picker in production)
+document.querySelectorAll('.search-input[readonly]').forEach(input => {
+  input.addEventListener('click', () => {
+    alert('Date picker would open here in production version');
+  });
+});
+
+// Init
+renderFeatured();
+
+// Handle ?country= or ?q= URL params on load
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('country')) filterCountry(urlParams.get('country'));
+else if (urlParams.get('q')) {
+  document.getElementById('searchInput').value = urlParams.get('q');
+  doSearch();
+}
+</script>
+</body>
+</html>
